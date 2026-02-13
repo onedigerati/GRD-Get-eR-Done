@@ -27,11 +27,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/glittercowboy/get-er-done.git"
+    "url": "git+https://github.com/onedigerati/GRD-Get-eR-Done.git"
   },
-  "homepage": "https://github.com/glittercowboy/get-er-done",
+  "homepage": "https://github.com/onedigerati/GRD-Get-eR-Done",
   "bugs": {
-    "url": "https://github.com/glittercowboy/get-er-done/issues"
+    "url": "https://github.com/onedigerati/GRD-Get-eR-Done/issues"
   },
   "engines": {
     "node": ">=16.7.0"

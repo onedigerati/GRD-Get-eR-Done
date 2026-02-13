@@ -1,0 +1,3845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRD - Get eR Done | AI-Powered Project Orchestration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg-void: #06080d;
+  --bg-deep: #0a0e17;
+  --bg-surface: #0f1420;
+  --bg-elevated: #151b2b;
+  --bg-card: #1a2135;
+  --cyan: #00e5ff;
+  --cyan-dim: #00b8d4;
+  --cyan-glow: rgba(0, 229, 255, 0.15);
+  --cyan-subtle: rgba(0, 229, 255, 0.06);
+  --amber: #ffab40;
+  --amber-dim: #ff8f00;
+  --green: #69f0ae;
+  --red: #ff5252;
+  --purple: #b388ff;
+  --text-primary: #e8eaf6;
+  --text-secondary: #8892b0;
+  --text-muted: #4a5568;
+  --border: rgba(0, 229, 255, 0.08);
+  --border-active: rgba(0, 229, 255, 0.25);
+  --mono: 'JetBrains Mono', monospace;
+  --display: 'DM Serif Display', serif;
+  --body: 'Space Grotesk', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--body);
+  font-weight: 400;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 229, 255, 0.008) 2px,
+    rgba(0, 229, 255, 0.008) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ========== SCROLL ANIMATIONS ========== */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ========== NAV ========== */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(6, 8, 13, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+}
+nav .nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+nav .nav-logo {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--cyan);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+nav .nav-logo span { color: var(--text-muted); }
+nav .nav-links { display: flex; gap: 2rem; }
+nav .nav-links a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+nav .nav-links a:hover { color: var(--cyan); }
+
+/* ========== SECTIONS ========== */
+section {
+  padding: 8rem 2rem;
+  position: relative;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ========== HERO ========== */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding-top: 56px;
+}
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 229, 255, 0.08), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255, 171, 64, 0.04), transparent),
+    var(--bg-void);
+}
+/* Animated grid */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 20%, transparent 70%);
+  animation: gridPulse 8s ease-in-out infinite;
+}
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--cyan-subtle);
+  border: 1px solid var(--border-active);
+  border-radius: 100px;
+  padding: 0.4rem 1.2rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--cyan);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+  animation: fadeInDown 1s 0.2s both;
+}
+.hero-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--cyan);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.4); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(0, 229, 255, 0); }
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(4rem, 10vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 0.3em;
+  animation: fadeInUp 1s 0.4s both;
+}
+.hero h1 .accent {
+  background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-subtitle {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s 0.6s both;
+}
+.hero-desc {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  line-height: 1.8;
+  animation: fadeInUp 1s 0.8s both;
+}
+.hero-terminal {
+  display: inline-block;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem 2rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  animation: fadeInUp 1s 1s both;
+  position: relative;
+  overflow: hidden;
+}
+.hero-terminal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.hero-terminal .prompt { color: var(--green); }
+.hero-terminal .cmd { color: var(--cyan); }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== SECTION HEADERS ========== */
+.section-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.section-label::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--cyan);
+}
+.section-title {
+  font-family: var(--display);
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+}
+.section-desc {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 640px;
+  line-height: 1.8;
+}
+
+/* ========== TRANSFORMATION ========== */
+.transform-section { background: var(--bg-deep); }
+
+.transform-visual {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 4rem;
+}
+.transform-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.transform-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.transform-box.before::before {
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+}
+.transform-box.after::before {
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+}
+.transform-box .label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.transform-box.before .label { color: var(--red); }
+.transform-box.after .label { color: var(--cyan); }
+.transform-box .name {
+  font-family: var(--display);
+  font-size: 2.8rem;
+  margin-bottom: 0.3rem;
+}
+.transform-box.before .name { color: var(--text-muted); text-decoration: line-through; text-decoration-color: rgba(255,82,82,0.4); }
+.transform-box.after .name { color: var(--text-primary); }
+.transform-box .full-name {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.transform-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.transform-arrow svg {
+  width: 48px;
+  height: 48px;
+  color: var(--cyan);
+  animation: arrowPulse 2s infinite;
+}
+@keyframes arrowPulse {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  50% { transform: translateX(4px); opacity: 0.6; }
+}
+.transform-arrow .arrow-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+}
+
+/* Stats ribbon */
+.stats-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 4rem;
+}
+.stat-cell {
+  background: var(--bg-surface);
+  padding: 1.8rem 1.2rem;
+  text-align: center;
+}
+.stat-cell .stat-value {
+  font-family: var(--mono);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--cyan);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.stat-cell .stat-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ========== GSD vs GRD COMPARISON ========== */
+.compare-section {
+  background: var(--bg-void);
+  position: relative;
+}
+.compare-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-active), transparent);
+}
+
+/* Side-by-side comparison table */
+.compare-table {
+  margin-top: 4rem;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.compare-table thead th {
+  padding: 1.4rem 2rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table thead th:first-child {
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  width: 200px;
+}
+.compare-table thead th:nth-child(2) {
+  background: rgba(255, 82, 82, 0.04);
+  color: var(--red);
+  border-left: 1px solid var(--border);
+}
+.compare-table thead th:nth-child(3) {
+  background: rgba(0, 229, 255, 0.04);
+  color: var(--cyan);
+  border-left: 1px solid var(--border);
+}
+.compare-table tbody td {
+  padding: 1.1rem 2rem;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.65;
+}
+.compare-table tbody tr:last-child td { border-bottom: none; }
+.compare-table tbody td:first-child {
+  background: var(--bg-surface);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.compare-table tbody td:nth-child(2) {
+  background: var(--bg-deep);
+  color: var(--text-muted);
+  border-left: 1px solid var(--border);
+}
+.compare-table tbody td:nth-child(3) {
+  background: var(--bg-deep);
+  color: var(--text-secondary);
+  border-left: 1px solid var(--border);
+}
+.compare-table .highlight {
+  color: var(--cyan);
+  font-weight: 500;
+}
+.compare-table .dim { color: var(--text-muted); }
+.compare-table .tag-old {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(255, 82, 82, 0.08);
+  color: var(--red);
+  border: 1px solid rgba(255, 82, 82, 0.15);
+}
+.compare-table .tag-new {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+/* Benefits grid */
+.benefits-grid {
+  margin-top: 4rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+.benefit-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.benefit-card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-3px);
+}
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.benefit-card:hover::before { opacity: 1; }
+.benefit-card:nth-child(1)::before { background: var(--cyan); }
+.benefit-card:nth-child(2)::before { background: var(--amber); }
+.benefit-card:nth-child(3)::before { background: var(--purple); }
+.benefit-card:nth-child(4)::before { background: var(--green); }
+.benefit-card:nth-child(5)::before { background: var(--cyan); }
+.benefit-card:nth-child(6)::before { background: var(--amber); }
+
+.benefit-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 1.2rem;
+}
+.benefit-card:nth-child(1) .benefit-icon { background: rgba(0, 229, 255, 0.1); }
+.benefit-card:nth-child(2) .benefit-icon { background: rgba(255, 171, 64, 0.1); }
+.benefit-card:nth-child(3) .benefit-icon { background: rgba(179, 136, 255, 0.1); }
+.benefit-card:nth-child(4) .benefit-icon { background: rgba(105, 240, 174, 0.1); }
+.benefit-card:nth-child(5) .benefit-icon { background: rgba(0, 229, 255, 0.1); }
+.benefit-card:nth-child(6) .benefit-icon { background: rgba(255, 171, 64, 0.1); }
+
+.benefit-title {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem;
+}
+.benefit-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.benefit-detail {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.benefit-detail code {
+  color: var(--cyan);
+  background: var(--bg-card);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+}
+
+/* Callout box */
+.compare-callout {
+  margin-top: 3rem;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.04), rgba(179, 136, 255, 0.04));
+  border: 1px solid var(--border-active);
+  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2rem;
+  align-items: center;
+}
+.callout-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--cyan-subtle);
+  border: 1px solid var(--border-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+.callout-content h3 {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.4rem;
+}
+.callout-content p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .benefits-grid { grid-template-columns: 1fr; }
+  .compare-table { font-size: 0.82rem; }
+  .compare-table thead th, .compare-table tbody td { padding: 0.8rem 1rem; }
+  .compare-callout { grid-template-columns: 1fr; text-align: center; }
+  .callout-icon { margin: 0 auto; }
+}
+
+/* ========== QUALITY FINDINGS ========== */
+.quality-section {
+  background: var(--bg-void);
+  position: relative;
+}
+.quality-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(105, 240, 174, 0.4), transparent);
+}
+.quality-grid {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.quality-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 1.5rem;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.quality-card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+}
+.quality-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.quality-card:nth-child(1) .quality-icon { background: rgba(0, 229, 255, 0.1); }
+.quality-card:nth-child(2) .quality-icon { background: rgba(255, 171, 64, 0.1); }
+.quality-card:nth-child(3) .quality-icon { background: rgba(179, 136, 255, 0.1); }
+.quality-card:nth-child(4) .quality-icon { background: rgba(105, 240, 174, 0.1); }
+.quality-card:nth-child(5) .quality-icon { background: rgba(0, 229, 255, 0.1); }
+.quality-card:nth-child(6) .quality-icon { background: rgba(255, 171, 64, 0.1); }
+.quality-content h3 {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.quality-tag {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 3px;
+  margin-left: 0.6rem;
+  vertical-align: middle;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.quality-tag.grd-only {
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+.quality-tag.improved {
+  background: rgba(105, 240, 174, 0.08);
+  color: var(--green);
+  border: 1px solid rgba(105, 240, 174, 0.15);
+}
+.quality-content p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin-bottom: 0.6rem;
+}
+.quality-content p:last-child { margin-bottom: 0; }
+.quality-evidence {
+  margin-top: 0.8rem;
+  padding: 0.8rem 1rem;
+  background: var(--bg-card);
+  border-radius: 6px;
+  border-left: 2px solid var(--border-active);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+.quality-evidence strong { color: var(--cyan); font-weight: 600; }
+.quality-evidence code {
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+}
+.quality-summary-box {
+  margin-top: 3rem;
+  background: linear-gradient(135deg, rgba(105, 240, 174, 0.04), rgba(0, 229, 255, 0.04));
+  border: 1px solid rgba(105, 240, 174, 0.15);
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+.quality-summary-box h3 {
+  font-family: var(--display);
+  font-size: 1.2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.8rem;
+}
+.quality-summary-box p {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+}
+.quality-summary-box code {
+  font-family: var(--mono);
+  color: var(--cyan);
+  background: var(--bg-card);
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  font-size: 0.82rem;
+}
+@media (max-width: 900px) {
+  .quality-card { grid-template-columns: 1fr; }
+  .quality-icon { width: 44px; height: 44px; font-size: 1.1rem; }
+}
+
+/* ========== ARCHITECTURE ========== */
+.arch-section {
+  background: var(--bg-void);
+}
+.arch-layers {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.arch-layer {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 2rem;
+  align-items: start;
+  position: relative;
+  transition: border-color 0.3s, background 0.3s;
+}
+.arch-layer:hover {
+  border-color: var(--border-active);
+  background: var(--bg-elevated);
+}
+.arch-layer-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.arch-layer-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.arch-layer:nth-child(1) .arch-layer-icon { background: rgba(0, 229, 255, 0.12); color: var(--cyan); }
+.arch-layer:nth-child(2) .arch-layer-icon { background: rgba(255, 171, 64, 0.12); color: var(--amber); }
+.arch-layer:nth-child(3) .arch-layer-icon { background: rgba(179, 136, 255, 0.12); color: var(--purple); }
+.arch-layer:nth-child(4) .arch-layer-icon { background: rgba(105, 240, 174, 0.12); color: var(--green); }
+
+.arch-layer-name {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+.arch-layer-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.arch-layer-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.arch-tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+.arch-tag:hover {
+  border-color: var(--border-active);
+  color: var(--text-primary);
+}
+/* Flow arrows between layers */
+.arch-flow {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+/* ========== AGENT TEAMS ========== */
+.teams-section {
+  background: var(--bg-deep);
+  position: relative;
+}
+.teams-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+}
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 4rem;
+}
+.team-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.team-card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+}
+.team-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--cyan-dim));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.team-card:hover::before { opacity: 1; }
+
+.team-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+.team-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--cyan-subtle);
+  border: 1px solid var(--border-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.team-card-name {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--cyan);
+}
+.team-card-workflow {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+.team-card p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1.2rem;
+  line-height: 1.7;
+}
+.team-agents {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.team-agent-chip {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+/* Lifecycle diagram */
+.lifecycle {
+  margin-top: 4rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+.lifecycle-title {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.lifecycle-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.lifecycle-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lifecycle-node {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-active);
+  color: var(--cyan);
+  white-space: nowrap;
+}
+.lifecycle-desc {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text-muted);
+}
+.lifecycle-arrow {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  margin: 0 0.2rem;
+}
+
+/* ========== CODE EXAMPLES ========== */
+.code-section {
+  background: var(--bg-void);
+  position: relative;
+}
+.code-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-active), transparent);
+}
+
+/* Tab system */
+.code-tabs {
+  margin-top: 3rem;
+}
+.code-tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.code-tab-bar::-webkit-scrollbar { display: none; }
+.code-tab-btn {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.9rem 1.5rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+.code-tab-btn:hover { color: var(--text-secondary); }
+.code-tab-btn.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+
+/* Code panels */
+.code-panel {
+  display: none;
+}
+.code-panel.active {
+  display: block;
+  animation: codeFadeIn 0.3s ease;
+}
+@keyframes codeFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* File header */
+.code-file {
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.code-file + .code-file { margin-top: 1rem; }
+.code-file-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.code-file-dots {
+  display: flex;
+  gap: 5px;
+}
+.code-file-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.code-file-dots span:nth-child(1) { background: #ff5f57; }
+.code-file-dots span:nth-child(2) { background: #febc2e; }
+.code-file-dots span:nth-child(3) { background: #28c840; }
+.code-file-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+.code-file-badge {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-left: auto;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.code-file-badge.added {
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+/* Code block */
+.code-block {
+  padding: 1.5rem;
+  background: var(--bg-surface);
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-card) transparent;
+}
+.code-block pre {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+  margin: 0;
+  white-space: pre;
+}
+.code-block .line-num {
+  display: inline-block;
+  width: 32px;
+  color: var(--text-muted);
+  opacity: 0.4;
+  user-select: none;
+  text-align: right;
+  margin-right: 1.5rem;
+}
+
+/* Syntax colors */
+.code-block .kw { color: var(--purple); }       /* keywords */
+.code-block .fn { color: var(--cyan); }          /* function names */
+.code-block .str { color: var(--green); }        /* strings */
+.code-block .cmt { color: var(--text-muted); font-style: italic; }  /* comments */
+.code-block .param { color: var(--amber); }      /* parameters */
+.code-block .val { color: var(--red); }          /* values */
+.code-block .new-line {
+  background: rgba(0, 229, 255, 0.04);
+  display: inline-block;
+  width: calc(100% + 3rem);
+  margin-left: -1.5rem;
+  padding-left: 1.5rem;
+  border-left: 3px solid rgba(0, 229, 255, 0.3);
+}
+.code-block .old-line {
+  background: rgba(255, 82, 82, 0.04);
+  display: inline-block;
+  width: calc(100% + 3rem);
+  margin-left: -1.5rem;
+  padding-left: 1.5rem;
+  border-left: 3px solid rgba(255, 82, 82, 0.2);
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+/* Annotation callouts */
+.code-annotation {
+  margin-top: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 229, 255, 0.03);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.code-annotation strong { color: var(--cyan); }
+
+@media (max-width: 900px) {
+  .code-block pre { font-size: 0.68rem; }
+  .code-tab-btn { padding: 0.7rem 1rem; font-size: 0.65rem; }
+}
+
+/* ========== REBRANDING PROCESS ========== */
+.rebrand-section { background: var(--bg-void); }
+
+.rebrand-phases {
+  margin-top: 4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.rebrand-phase {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  position: relative;
+}
+.rebrand-phase-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1.2rem;
+}
+.rebrand-phase:nth-child(1) .rebrand-phase-label { color: var(--amber); }
+.rebrand-phase:nth-child(2) .rebrand-phase-label { color: var(--purple); }
+
+.rebrand-phase h3 {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.agent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.agent-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 1rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+.agent-item:hover { border-color: var(--border-active); }
+.agent-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.agent-item:nth-child(1) .agent-dot { background: var(--cyan); }
+.agent-item:nth-child(2) .agent-dot { background: var(--amber); }
+.agent-item:nth-child(3) .agent-dot { background: var(--green); }
+.agent-item:nth-child(4) .agent-dot { background: var(--purple); }
+.agent-item:nth-child(5) .agent-dot { background: var(--red); }
+.agent-item-name {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-primary);
+}
+.agent-item-desc {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
+/* QA result */
+.qa-result {
+  margin-top: 2rem;
+  background: rgba(105, 240, 174, 0.05);
+  border: 1px solid rgba(105, 240, 174, 0.15);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  text-align: center;
+}
+.qa-result .check {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+.qa-result .qa-text {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--green);
+  font-weight: 600;
+}
+.qa-result .qa-detail {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.3rem;
+}
+
+/* ========== COMMANDS ========== */
+.commands-section { background: var(--bg-deep); }
+
+.cmd-categories {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.cmd-category {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cmd-category-header {
+  padding: 1.2rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.cmd-category-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.cmd-category:nth-child(1) .cmd-category-dot { background: var(--cyan); }
+.cmd-category:nth-child(2) .cmd-category-dot { background: var(--amber); }
+.cmd-category:nth-child(3) .cmd-category-dot { background: var(--purple); }
+.cmd-category:nth-child(4) .cmd-category-dot { background: var(--green); }
+.cmd-category:nth-child(5) .cmd-category-dot { background: var(--red); }
+
+.cmd-category-name {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cmd-category-count {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+.cmd-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px;
+  background: var(--border);
+}
+.cmd-item {
+  padding: 1rem 2rem;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  transition: background 0.2s;
+}
+.cmd-item:hover { background: var(--bg-elevated); }
+.cmd-name {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+.cmd-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ========== STATS FINAL ========== */
+.stats-section {
+  background: var(--bg-void);
+  position: relative;
+}
+.stats-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+}
+.stats-mega {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 4rem;
+}
+.stat-mega-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.stat-mega-card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-3px);
+}
+.stat-mega-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.stat-mega-card:hover::after { opacity: 1; }
+
+.stat-mega-value {
+  font-family: var(--mono);
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.8rem;
+}
+.stat-mega-card:nth-child(1) .stat-mega-value { color: var(--cyan); }
+.stat-mega-card:nth-child(2) .stat-mega-value { color: var(--amber); }
+.stat-mega-card:nth-child(3) .stat-mega-value { color: var(--purple); }
+.stat-mega-card:nth-child(4) .stat-mega-value { color: var(--green); }
+.stat-mega-card:nth-child(5) .stat-mega-value { color: var(--cyan); }
+.stat-mega-card:nth-child(6) .stat-mega-value { color: var(--amber); }
+.stat-mega-card:nth-child(7) .stat-mega-value { color: var(--green); }
+
+.stat-mega-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ========== INSTALL ========== */
+.install-section {
+  background: var(--bg-deep);
+  position: relative;
+}
+.install-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+}
+
+/* Internal badge */
+.install-internal-badge {
+  margin-top: 3rem;
+  background: rgba(255, 171, 64, 0.05);
+  border: 1px solid rgba(255, 171, 64, 0.2);
+  border-radius: 12px;
+  padding: 1.2rem 1.8rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.internal-badge-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+.internal-badge-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.internal-badge-text strong {
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+/* Install methods */
+.install-methods {
+  margin-top: 3rem;
+}
+.install-methods-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.install-method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.install-method-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.8rem;
+  position: relative;
+  transition: border-color 0.3s;
+}
+.install-method-card:hover { border-color: var(--border-active); }
+.install-method-card.primary {
+  border-color: rgba(0, 229, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.03), var(--bg-surface));
+}
+.install-method-badge {
+  position: absolute;
+  top: -8px;
+  right: 16px;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bg-void);
+  background: var(--cyan);
+  padding: 0.2rem 0.7rem;
+  border-radius: 4px;
+  font-weight: 700;
+}
+.install-method-name {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.install-method-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-bottom: 1.2rem;
+  line-height: 1.6;
+}
+.install-method-cmds {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.install-method-cmds .dim { color: var(--text-muted); font-style: italic; }
+
+@media (max-width: 900px) {
+  .install-method-grid { grid-template-columns: 1fr; }
+}
+
+.install-hero-cmd {
+  margin-top: 2rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-active);
+  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.install-hero-cmd::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--amber), var(--cyan));
+}
+.install-hero-cmd .install-prefix {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.install-hero-cmd .install-cmd-line {
+  font-family: var(--mono);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+.install-hero-cmd .install-cmd-line .prompt {
+  color: var(--green);
+  font-weight: 400;
+}
+.install-hero-cmd .install-cmd-line .pkg {
+  color: var(--cyan);
+}
+.install-hero-cmd .install-note {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+}
+.install-hero-cmd .copy-btn {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.install-hero-cmd .copy-btn:hover {
+  border-color: var(--border-active);
+  color: var(--cyan);
+}
+.install-hero-cmd .copy-btn.copied {
+  color: var(--green);
+  border-color: rgba(105, 240, 174, 0.3);
+}
+
+/* Steps timeline */
+.install-steps {
+  margin-top: 3.5rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  position: relative;
+}
+.install-steps::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: 16.66%;
+  right: 16.66%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--cyan), var(--amber), var(--green));
+  opacity: 0.3;
+  z-index: 0;
+}
+.install-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.install-step-num {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  border: 2px solid;
+}
+.install-step:nth-child(1) .install-step-num {
+  background: rgba(0, 229, 255, 0.08);
+  border-color: rgba(0, 229, 255, 0.3);
+  color: var(--cyan);
+}
+.install-step:nth-child(2) .install-step-num {
+  background: rgba(255, 171, 64, 0.08);
+  border-color: rgba(255, 171, 64, 0.3);
+  color: var(--amber);
+}
+.install-step:nth-child(3) .install-step-num {
+  background: rgba(105, 240, 174, 0.08);
+  border-color: rgba(105, 240, 174, 0.3);
+  color: var(--green);
+}
+.install-step-title {
+  font-family: var(--display);
+  font-size: 1.15rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.install-step-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  max-width: 260px;
+  line-height: 1.65;
+}
+
+/* Runtime cards */
+.install-runtimes {
+  margin-top: 4rem;
+}
+.install-runtimes-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.runtime-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.runtime-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: border-color 0.3s;
+}
+.runtime-card:hover { border-color: var(--border-active); }
+.runtime-card-name {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+.runtime-card-path {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.runtime-card-cmds {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.runtime-cmd {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.5rem 0.8rem;
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.runtime-cmd .flag { color: var(--cyan); }
+
+/* CLI options table */
+.install-options {
+  margin-top: 3rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.install-options-header {
+  padding: 1rem 2rem;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.install-opt-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+}
+.install-opt-group {
+  background: var(--bg-deep);
+  padding: 1.2rem 2rem;
+}
+.install-opt-group-title {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+.install-opt-item {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.3rem 0;
+}
+.install-opt-flag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--cyan);
+  white-space: nowrap;
+  min-width: 110px;
+}
+.install-opt-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* Verify box */
+.install-verify {
+  margin-top: 3rem;
+  background: rgba(105, 240, 174, 0.04);
+  border: 1px solid rgba(105, 240, 174, 0.12);
+  border-radius: 12px;
+  padding: 1.8rem 2.5rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  align-items: center;
+}
+.install-verify-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(105, 240, 174, 0.08);
+  border: 1px solid rgba(105, 240, 174, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+.install-verify-text h4 {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 0.3rem;
+}
+.install-verify-text p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.install-verify-text code {
+  font-family: var(--mono);
+  color: var(--cyan);
+  background: var(--bg-card);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+/* Pro tip */
+.install-tip {
+  margin-top: 2rem;
+  background: rgba(255, 171, 64, 0.04);
+  border: 1px solid rgba(255, 171, 64, 0.12);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+.install-tip-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.install-tip-content {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.install-tip-content strong {
+  color: var(--amber);
+  font-weight: 600;
+}
+.install-tip-content code {
+  font-family: var(--mono);
+  color: var(--text-primary);
+  background: var(--bg-card);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 900px) {
+  .install-steps { grid-template-columns: 1fr; gap: 2rem; }
+  .install-steps::before { display: none; }
+  .runtime-grid { grid-template-columns: 1fr; }
+  .install-opt-grid { grid-template-columns: 1fr; }
+  .install-verify { grid-template-columns: 1fr; text-align: center; }
+  .install-verify-icon { margin: 0 auto; }
+  .install-hero-cmd { padding: 2rem 1.5rem; }
+}
+
+/* ========== MIGRATION ========== */
+.migrate-section {
+  background: var(--bg-void);
+  position: relative;
+}
+.migrate-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--amber-dim), transparent);
+}
+
+/* Migration flow */
+.migrate-flow {
+  margin-top: 3.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 2rem;
+  align-items: stretch;
+}
+.migrate-side {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+}
+.migrate-side-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.migrate-side.before .migrate-side-label { color: var(--text-muted); }
+.migrate-side.after .migrate-side-label { color: var(--green); }
+.migrate-side-title {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+.migrate-side.before .migrate-side-title { color: var(--text-muted); }
+.migrate-side-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.migrate-item {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+.migrate-side.before .migrate-item { color: var(--text-muted); }
+.migrate-side.after .migrate-item { color: var(--text-secondary); }
+.migrate-side.after .migrate-item .new { color: var(--cyan); font-weight: 500; }
+
+.migrate-arrow-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+.migrate-arrow-icon {
+  color: var(--amber);
+  font-size: 1.5rem;
+}
+.migrate-arrow-text {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--amber);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Migration steps */
+.migrate-steps {
+  margin-top: 4rem;
+}
+.migrate-steps-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.migrate-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.migrate-step-item {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.migrate-step-item:hover { border-color: var(--border-active); }
+.migrate-step-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.8rem;
+}
+.migrate-step-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cyan-subtle);
+  border: 1px solid var(--border-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cyan);
+  flex-shrink: 0;
+}
+.migrate-step-title {
+  font-family: var(--display);
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.migrate-step-auto {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-left: auto;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(105, 240, 174, 0.08);
+  color: var(--green);
+  border: 1px solid rgba(105, 240, 174, 0.15);
+}
+.migrate-step-body {
+  padding: 0 1.8rem 1.2rem;
+  padding-left: calc(1.8rem + 28px + 1rem);
+}
+.migrate-step-body p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 0.8rem;
+}
+.migrate-step-body .migrate-cmd {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: block;
+}
+.migrate-step-body .migrate-cmd .flag { color: var(--cyan); }
+.migrate-step-body .migrate-cmd .cmt { color: var(--text-muted); font-style: italic; }
+
+/* Teams auto callout */
+.migrate-teams-callout {
+  margin-top: 3rem;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.04), rgba(105, 240, 174, 0.04));
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+.migrate-teams-callout h3 {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-bottom: 0.8rem;
+}
+.migrate-teams-callout p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+.migrate-teams-callout p:last-child { margin-bottom: 0; }
+.migrate-teams-callout code {
+  font-family: var(--mono);
+  color: var(--cyan);
+  background: var(--bg-card);
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  font-size: 0.82rem;
+}
+/* Layer diagram - structured grid */
+.layer-diagram {
+  margin: 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.layer-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+.layer-row.data-layer,
+.layer-row.workflow-layer,
+.layer-row.agent-layer {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+}
+.layer-row.data-layer {
+  border-radius: 10px 10px 0 0;
+  border-bottom: none;
+}
+.layer-row.workflow-layer {
+  border-radius: 0;
+  border-bottom: none;
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.04), var(--bg-surface));
+  border-color: rgba(0, 229, 255, 0.15);
+}
+.layer-row.agent-layer {
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(90deg, rgba(0, 229, 255, 0.06), var(--bg-surface));
+  border-color: rgba(0, 229, 255, 0.15);
+}
+.layer-row.arrow-row {
+  padding: 0.3rem 0 0.3rem 1.5rem;
+}
+.layer-name {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.layer-row.data-layer .layer-name { color: var(--text-muted); }
+.layer-row.workflow-layer .layer-name { color: var(--cyan); }
+.layer-row.agent-layer .layer-name { color: var(--cyan); }
+.layer-detail {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.layer-detail .files { color: var(--text-secondary); }
+.layer-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+.layer-badge.unchanged {
+  background: rgba(255, 171, 64, 0.08);
+  color: var(--amber);
+  border: 1px solid rgba(255, 171, 64, 0.15);
+}
+.layer-badge.enhanced {
+  background: rgba(0, 229, 255, 0.08);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+.layer-arrow {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--cyan);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.layer-arrow .arrow-char { font-size: 1rem; }
+.layer-arrow .arrow-label { color: var(--text-muted); font-size: 0.62rem; }
+
+@media (max-width: 700px) {
+  .layer-row { grid-template-columns: 1fr; gap: 0.3rem; }
+}
+
+@media (max-width: 900px) {
+  .migrate-flow { grid-template-columns: 1fr; }
+  .migrate-arrow-col { writing-mode: horizontal-tb; flex-direction: row; padding: 0.5rem 0; }
+  .migrate-arrow-text { writing-mode: horizontal-tb; }
+  .migrate-step-body { padding-left: 1.8rem; }
+}
+
+/* ========== FOOTER ========== */
+footer {
+  padding: 4rem 2rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  background: var(--bg-void);
+}
+footer .footer-logo {
+  font-family: var(--display);
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+footer .footer-logo .accent { color: var(--cyan); }
+footer .footer-tagline {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+footer .footer-credit {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  margin-top: 2rem;
+  opacity: 0.5;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 900px) {
+  .transform-visual { grid-template-columns: 1fr; }
+  .transform-arrow { transform: rotate(90deg); padding: 1rem 0; }
+  .teams-grid { grid-template-columns: 1fr; }
+  .rebrand-phases { grid-template-columns: 1fr; }
+  .stats-mega { grid-template-columns: repeat(2, 1fr); }
+  .arch-layer { grid-template-columns: 1fr; }
+  .lifecycle-flow { gap: 0.3rem; }
+  nav .nav-links { display: none; }
+}
+@media (max-width: 600px) {
+  section { padding: 5rem 1.2rem; }
+  .stats-mega { grid-template-columns: 1fr 1fr; }
+  .cmd-list { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">GRD <span>//</span> Get eR Done</div>
+    <div class="nav-links">
+      <a href="#transform">Transformation</a>
+      <a href="#compare">GSD vs GRD</a>
+      <a href="#quality">Quality</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#teams">Agent Teams</a>
+      <a href="#code-examples">Code</a>
+      <a href="#process">Process</a>
+      <a href="#commands">Commands</a>
+      <a href="#install">Install</a>
+      <a href="#migrate">Migrate</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Enhanced with Claude Code Agent Teams</div>
+    <h1><span class="accent">GRD</span></h1>
+    <div class="hero-subtitle">Get eR Done</div>
+    <p class="hero-desc">
+      A meta-prompting, context engineering and spec-driven development system
+      for Claude Code. Rebranded and enhanced with persistent Agent Teams
+      for coordinated multi-agent orchestration.
+    </p>
+    <div class="hero-terminal">
+      <span class="prompt">$</span> <span class="cmd">/grd:new-project</span>
+    </div>
+  </div>
+</section>
+
+<!-- TRANSFORMATION -->
+<section class="transform-section" id="transform">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">The Transformation</div>
+      <h2 class="section-title">From GSD to GRD</h2>
+      <p class="section-desc">
+        A complete rebrand executed by a team of 9 AI agents working in parallel,
+        replacing every reference across the entire codebase with zero leftovers.
+      </p>
+    </div>
+
+    <div class="transform-visual reveal reveal-delay-2">
+      <div class="transform-box before">
+        <div class="label">Before</div>
+        <div class="name">GSD</div>
+        <div class="full-name">get-shit-done-cc</div>
+      </div>
+      <div class="transform-arrow">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 24h32M32 16l8 8-8 8"/>
+        </svg>
+        <span class="arrow-label">9 agents</span>
+      </div>
+      <div class="transform-box after">
+        <div class="label">After</div>
+        <div class="name">GRD</div>
+        <div class="full-name">get-er-done-cc</div>
+      </div>
+    </div>
+
+    <div class="stats-ribbon reveal reveal-delay-3">
+      <div class="stat-cell">
+        <div class="stat-value">139</div>
+        <div class="stat-label">Files</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">960+</div>
+        <div class="stat-label">Replacements</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">9</div>
+        <div class="stat-label">Agents</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">11</div>
+        <div class="stat-label">Agent Types</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">27</div>
+        <div class="stat-label">Commands</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">30+</div>
+        <div class="stat-label">Workflows</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Remaining GSD</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GSD vs GRD COMPARISON -->
+<section class="compare-section" id="compare">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">What Changed</div>
+      <h2 class="section-title">GSD vs GRD</h2>
+      <p class="section-desc">
+        GRD isn't just a rename. It's a fundamental upgrade to how agents coordinate,
+        communicate, and deliver results together.
+      </p>
+    </div>
+
+    <!-- Comparison table -->
+    <table class="compare-table reveal reveal-delay-2">
+      <thead>
+        <tr>
+          <th>Dimension</th>
+          <th>GSD <span class="tag-old">original</span></th>
+          <th>GRD <span class="tag-new">enhanced</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Agent Model</td>
+          <td>Fire-and-forget &mdash; agents spawn, execute, vanish. No awareness of siblings.</td>
+          <td><span class="highlight">Persistent teams</span> &mdash; agents join named teams, see shared task boards, communicate in real-time.</td>
+        </tr>
+        <tr>
+          <td>Coordination</td>
+          <td>Orchestrator polls each agent sequentially. No agent-to-agent channel.</td>
+          <td><span class="highlight">SendMessage</span> enables direct agent-to-agent communication and broadcast alerts.</td>
+        </tr>
+        <tr>
+          <td>Task Tracking</td>
+          <td>Implicit &mdash; orchestrator holds all state in its context window. Easy to lose progress.</td>
+          <td><span class="highlight">TaskCreate / TaskList / TaskUpdate</span> &mdash; persistent shared board. Progress survives context resets.</td>
+        </tr>
+        <tr>
+          <td>Dependencies</td>
+          <td>Hardcoded wave ordering. Orchestrator must manually sequence.</td>
+          <td><span class="highlight">blockedBy / blocks</span> &mdash; declarative task dependencies. Agents auto-wait on predecessors.</td>
+        </tr>
+        <tr>
+          <td>Observability</td>
+          <td>Orchestrator sees final output only. No intermediate visibility.</td>
+          <td><span class="highlight">Named agents + task board</span> &mdash; see who's doing what, in real-time, across the whole team.</td>
+        </tr>
+        <tr>
+          <td>Lifecycle</td>
+          <td>No formal lifecycle. Orphaned agents possible after failures.</td>
+          <td><span class="highlight">TeamCreate &rarr; work &rarr; shutdown &rarr; TeamDelete</span>. Clean creation and teardown every time.</td>
+        </tr>
+        <tr>
+          <td>Failure Recovery</td>
+          <td>Orchestrator must detect failure, re-spawn from scratch with repeated context.</td>
+          <td>Team persists through failures. <span class="highlight">Idle agents can be re-messaged</span> with new instructions without re-spawning.</td>
+        </tr>
+        <tr>
+          <td>Branding</td>
+          <td class="dim">Informal naming. Not suitable for all workplaces.</td>
+          <td><span class="highlight">Professional and workplace-friendly</span>. Same power, broader adoption.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Benefits -->
+    <div style="margin-top:5rem;" class="reveal">
+      <div class="section-label">Concrete Benefits</div>
+      <h2 class="section-title">Why GRD is better</h2>
+    </div>
+
+    <div class="benefits-grid">
+      <div class="benefit-card reveal reveal-delay-1">
+        <div class="benefit-icon">&#9889;</div>
+        <div class="benefit-title">Faster execution</div>
+        <div class="benefit-desc">
+          Persistent teams eliminate re-spawn overhead. Agents stay warm between waves, and the shared task board means zero wasted turns figuring out what to do next.
+        </div>
+        <div class="benefit-detail">
+          GSD: spawn agent &rarr; load context &rarr; work &rarr; discard &rarr; repeat<br>
+          GRD: <code>SendMessage</code> to idle agent &rarr; resumes instantly
+        </div>
+      </div>
+
+      <div class="benefit-card reveal reveal-delay-2">
+        <div class="benefit-icon">&#128065;</div>
+        <div class="benefit-title">Full visibility</div>
+        <div class="benefit-desc">
+          Every agent has a name. Every task has a status. The team lead sees the entire operation at a glance through the shared task board, not hidden inside an orchestrator's context.
+        </div>
+        <div class="benefit-detail">
+          <code>TaskList()</code> &rarr; see all tasks, owners, blockers, and progress in one call
+        </div>
+      </div>
+
+      <div class="benefit-card reveal reveal-delay-3">
+        <div class="benefit-icon">&#128172;</div>
+        <div class="benefit-title">Agent collaboration</div>
+        <div class="benefit-desc">
+          Agents talk to each other, not just through the orchestrator. A researcher can flag a concern directly to the planner. An executor can warn siblings about a shared dependency.
+        </div>
+        <div class="benefit-detail">
+          <code>SendMessage(recipient="planner", content="...")</code> &mdash; direct peer communication
+        </div>
+      </div>
+
+      <div class="benefit-card reveal reveal-delay-1">
+        <div class="benefit-icon">&#128737;</div>
+        <div class="benefit-title">Resilient by design</div>
+        <div class="benefit-desc">
+          If an agent fails, the team continues. Task state lives on the shared board, not in a single agent's memory. Re-assign work without replaying the entire workflow.
+        </div>
+        <div class="benefit-detail">
+          Failed task stays <code>in_progress</code> &rarr; reassign to new agent &rarr; picks up where it left off
+        </div>
+      </div>
+
+      <div class="benefit-card reveal reveal-delay-2">
+        <div class="benefit-icon">&#128200;</div>
+        <div class="benefit-title">Smarter parallelism</div>
+        <div class="benefit-desc">
+          Declarative dependencies replace manual wave ordering. The system knows which tasks can run in parallel and which must wait, without the orchestrator micromanaging.
+        </div>
+        <div class="benefit-detail">
+          <code>addBlockedBy: ["task-1"]</code> &rarr; task auto-starts when dependency completes
+        </div>
+      </div>
+
+      <div class="benefit-card reveal reveal-delay-3">
+        <div class="benefit-icon">&#127959;</div>
+        <div class="benefit-title">Clean resource management</div>
+        <div class="benefit-desc">
+          Every team has a lifecycle. No orphaned agents, no leaked state, no zombie processes. Create, work, shutdown, delete &mdash; every time, automatically.
+        </div>
+        <div class="benefit-detail">
+          <code>TeamCreate</code> &rarr; work &rarr; <code>shutdown_request</code> &rarr; <code>TeamDelete</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Callout -->
+    <div class="compare-callout reveal reveal-delay-3">
+      <div class="callout-icon">&#128161;</div>
+      <div class="callout-content">
+        <h3>The meta-demonstration</h3>
+        <p>
+          The GRD rebrand was itself executed using Agent Teams &mdash; 9 named agents coordinated
+          through a shared task board with dependencies, parallel execution, and graceful shutdown.
+          The tool was enhanced by the very pattern it now provides.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUALITY FINDINGS -->
+<section class="quality-section" id="quality">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Output Quality</div>
+      <h2 class="section-title">Quality-of-output findings</h2>
+      <p class="section-desc">
+        Six differences between GSD and GRD that directly affect the correctness, reliability, and fidelity of generated artifacts. Each finding is traceable to specific source code evidence.
+      </p>
+    </div>
+
+    <div class="quality-grid">
+
+      <div class="quality-card reveal reveal-delay-1">
+        <div class="quality-icon">&#128203;</div>
+        <div class="quality-content">
+          <h3>Plan-checker catches user decision violations <span class="quality-tag grd-only">GRD Only</span></h3>
+          <p>
+            GRD plan-checker has a 7th verification dimension ("Context Compliance") that GSD plan-checker does not have. When a user makes decisions through <code>/grd:discuss-phase</code>, those decisions are recorded in CONTEXT.md. The plan-checker verifies that plans honor locked decisions, exclude deferred ideas, and don't contradict user preferences &mdash; before execution begins.
+          </p>
+          <p>
+            GSD plan-checker has 6 dimensions. It checks requirement coverage, task completeness, dependencies, key links, scope, and must_haves &mdash; but does not verify plans against user decisions.
+          </p>
+          <div class="quality-evidence">
+            <strong>Source:</strong> grd-plan-checker.md defines Dimension 7: Context Compliance.
+            Checks: locked decisions have implementing tasks, no tasks contradict decisions, deferred ideas excluded.
+            gsd-plan-checker.md has no equivalent dimension.
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-1">
+        <div class="quality-icon">&#9881;</div>
+        <div class="quality-content">
+          <h3>State updates are deterministic, not regex-based <span class="quality-tag grd-only">GRD Only</span></h3>
+          <p>
+            GSD agents update STATE.md by reading the file with <code>cat</code>, parsing with <code>grep</code>, and rewriting with manual string operations. If the markdown format deviates (extra whitespace, missing header, reordered sections), the regex can fail silently, producing corrupted state.
+          </p>
+          <p>
+            GRD agents use <code>grd-tools.js state</code> commands (advance-plan, update-progress, record-metric, add-decision, record-session) that parse STATE.md with a structured parser and write back atomically. These operations have test coverage and handle edge cases.
+          </p>
+          <div class="quality-evidence">
+            <strong>Source:</strong> gsd-executor uses manual grep/sed STATE.md parsing.
+            grd-executor uses <code>grd-tools.js state</code> commands.
+            CHANGELOG v1.17.0: "Agents now use grd-tools for state updates instead of manual markdown parsing."
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-2">
+        <div class="quality-icon">&#128200;</div>
+        <div class="quality-content">
+          <h3>Condensed prompts leave more context for actual work <span class="quality-tag improved">Improved</span></h3>
+          <p>
+            Both systems document the same quality degradation curve: 0-30% context = peak quality, 50-70% = degrading, 70%+ = poor. Agent instructions consume context before any task work begins. GRD executor instructions are ~48% smaller than GSD's, meaning more of the context window is available for reading code, writing files, and running commands.
+          </p>
+          <p>
+            For a task where the GSD executor starts at ~15% context usage (from its own prompt), the GRD executor starts at ~8%. This headroom keeps quality in the "good" range where GSD would enter "degrading."
+          </p>
+          <div class="quality-evidence">
+            <strong>Source:</strong> GSD executor ~785 lines vs GRD executor ~404 lines (48% reduction).
+            GSD planner ~1387 lines vs GRD planner ~1158 lines (17% reduction).
+            Both systems target 50% context per plan &mdash; GRD starts with more headroom.
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-2">
+        <div class="quality-icon">&#128218;</div>
+        <div class="quality-content">
+          <h3>Two-step context assembly produces better-informed plans <span class="quality-tag grd-only">GRD Only</span></h3>
+          <p>
+            GSD planner reads project history by scanning all summary frontmatter with bash commands, then reading full summaries for phases it deems relevant. GRD planner uses <code>grd-tools.js history-digest</code> which compiles all summaries into structured JSON, scores each by relevance, selects the top 2-4, and reads only those in full.
+          </p>
+          <p>
+            The structured JSON is more reliable than bash-parsed YAML, uses fewer tokens, and produces better-contextualized plans because the planner makes more informed decisions about which prior work is relevant.
+          </p>
+          <div class="quality-evidence">
+            <strong>Source:</strong> gsd-planner uses bash frontmatter scanning across all summaries.
+            grd-planner uses <code>grd-tools.js history-digest</code> with explicit scoring criteria.
+            CHANGELOG v1.13.0: "grd-tools history-digest &mdash; compiles phase summaries into structured JSON."
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-3">
+        <div class="quality-icon">&#10003;</div>
+        <div class="quality-content">
+          <h3>Executor self-check catches false completion claims <span class="quality-tag grd-only">GRD Only</span></h3>
+          <p>
+            GSD executor writes SUMMARY.md and proceeds to state updates. If a file creation failed silently or a commit was missed, the SUMMARY contains inaccurate claims that propagate to downstream phases.
+          </p>
+          <p>
+            GRD executor runs a self-check after writing SUMMARY.md: it verifies each claimed file exists on disk and each claimed commit hash exists in git log. If any check fails, it appends "Self-Check: FAILED" with missing items and does not proceed to state updates.
+          </p>
+          <div class="quality-evidence">
+            <strong>Source:</strong> grd-executor.md defines the &lt;self_check&gt; protocol:
+            "Do NOT skip. Do NOT proceed to state updates if self-check fails."
+            gsd-executor.md has no equivalent section.
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-3">
+        <div class="quality-icon">&#128736;</div>
+        <div class="quality-content">
+          <h3>Debugger commit operations are safer <span class="quality-tag improved">Improved</span></h3>
+          <p>
+            GSD debugger uses <code>git add -A</code> when committing fixes, which stages all changes in the working directory &mdash; including unrelated modifications or temporary artifacts. It checks <code>commit_docs</code> config using fragile bash grep patterns.
+          </p>
+          <p>
+            GRD debugger stages specific files individually (never <code>git add -A</code>) and uses <code>grd-tools.js commit</code> for planning docs, which automatically respects the <code>commit_docs</code> configuration. This prevents accidentally committing unrelated files.
+          </p>
+          <div class="quality-evidence">
+            <strong>Source:</strong> gsd-debugger uses <code>git add -A</code> and manual config check.
+            grd-debugger stages files individually and uses <code>grd-tools.js commit</code>.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="quality-summary-box reveal reveal-delay-3">
+      <h3>Quality gates at every stage</h3>
+      <p>
+        GRD introduces quality gates that GSD does not have: plan-checker context compliance (catches user decision violations before execution), executor self-check (catches false completion claims after execution), and plan structural validation (catches malformed plans before execution). Combined with deterministic state operations and reduced context consumption, these mechanisms reduce the probability of cascading errors across multi-phase projects.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="arch-section" id="architecture">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">System Architecture</div>
+      <h2 class="section-title">Four layers of orchestration</h2>
+      <p class="section-desc">
+        From slash command to executed code. Each layer has a clear responsibility,
+        keeping agents lean and context windows fresh.
+      </p>
+    </div>
+
+    <div class="arch-layers">
+      <div class="arch-layer reveal reveal-delay-1">
+        <div class="arch-layer-header">
+          <div class="arch-layer-icon">/</div>
+          <div class="arch-layer-name">Commands</div>
+          <div class="arch-layer-count">27 slash commands</div>
+        </div>
+        <div class="arch-layer-items">
+          <span class="arch-tag">/grd:new-project</span>
+          <span class="arch-tag">/grd:plan-phase</span>
+          <span class="arch-tag">/grd:execute-phase</span>
+          <span class="arch-tag">/grd:verify-work</span>
+          <span class="arch-tag">/grd:debug</span>
+          <span class="arch-tag">/grd:progress</span>
+          <span class="arch-tag">/grd:map-codebase</span>
+          <span class="arch-tag">/grd:discuss-phase</span>
+          <span class="arch-tag">+19 more</span>
+        </div>
+      </div>
+
+      <div class="arch-flow reveal reveal-delay-1">&#8595;</div>
+
+      <div class="arch-layer reveal reveal-delay-2">
+        <div class="arch-layer-header">
+          <div class="arch-layer-icon">&#9881;</div>
+          <div class="arch-layer-name">Workflows</div>
+          <div class="arch-layer-count">30+ orchestration files</div>
+        </div>
+        <div class="arch-layer-items">
+          <span class="arch-tag">new-project.md</span>
+          <span class="arch-tag">plan-phase.md</span>
+          <span class="arch-tag">execute-phase.md</span>
+          <span class="arch-tag">execute-plan.md</span>
+          <span class="arch-tag">verify-phase.md</span>
+          <span class="arch-tag">map-codebase.md</span>
+          <span class="arch-tag">progress.md</span>
+          <span class="arch-tag">settings.md</span>
+          <span class="arch-tag">+22 more</span>
+        </div>
+      </div>
+
+      <div class="arch-flow reveal reveal-delay-2">&#8595;</div>
+
+      <div class="arch-layer reveal reveal-delay-3">
+        <div class="arch-layer-header">
+          <div class="arch-layer-icon">&#9733;</div>
+          <div class="arch-layer-name">Agents</div>
+          <div class="arch-layer-count">11 specialized AI agents</div>
+        </div>
+        <div class="arch-layer-items">
+          <span class="arch-tag">grd-planner</span>
+          <span class="arch-tag">grd-executor</span>
+          <span class="arch-tag">grd-verifier</span>
+          <span class="arch-tag">grd-debugger</span>
+          <span class="arch-tag">grd-roadmapper</span>
+          <span class="arch-tag">grd-phase-researcher</span>
+          <span class="arch-tag">grd-project-researcher</span>
+          <span class="arch-tag">grd-research-synthesizer</span>
+          <span class="arch-tag">grd-plan-checker</span>
+          <span class="arch-tag">grd-integration-checker</span>
+          <span class="arch-tag">grd-codebase-mapper</span>
+        </div>
+      </div>
+
+      <div class="arch-flow reveal reveal-delay-3">&#8595;</div>
+
+      <div class="arch-layer reveal reveal-delay-4">
+        <div class="arch-layer-header">
+          <div class="arch-layer-icon">&#9874;</div>
+          <div class="arch-layer-name">Tools</div>
+          <div class="arch-layer-count">20+ atomic operations</div>
+        </div>
+        <div class="arch-layer-items">
+          <span class="arch-tag">grd-tools.js</span>
+          <span class="arch-tag">state load</span>
+          <span class="arch-tag">state update</span>
+          <span class="arch-tag">resolve-model</span>
+          <span class="arch-tag">find-phase</span>
+          <span class="arch-tag">commit</span>
+          <span class="arch-tag">phase add</span>
+          <span class="arch-tag">verify-summary</span>
+          <span class="arch-tag">validate</span>
+          <span class="arch-tag">+11 more</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENT TEAMS -->
+<section class="teams-section" id="teams">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Key Innovation</div>
+      <h2 class="section-title">Claude Code Agent Teams</h2>
+      <p class="section-desc">
+        Four core workflows enhanced with persistent teams, shared task boards,
+        and coordinated multi-agent communication. Agents that think together.
+      </p>
+    </div>
+
+    <div class="teams-grid">
+      <div class="team-card reveal reveal-delay-1">
+        <div class="team-card-header">
+          <div class="team-card-icon">&#9654;</div>
+          <div>
+            <div class="team-card-name">Execution Team</div>
+            <div class="team-card-workflow">execute-phase.md</div>
+          </div>
+        </div>
+        <p>Persistent execution team with wave-based coordination. Plans execute in parallel waves with a shared task board tracking progress across all executors.</p>
+        <div class="team-agents">
+          <span class="team-agent-chip">executor-01</span>
+          <span class="team-agent-chip">executor-02</span>
+          <span class="team-agent-chip">executor-03</span>
+          <span class="team-agent-chip">grd-verifier</span>
+        </div>
+      </div>
+
+      <div class="team-card reveal reveal-delay-2">
+        <div class="team-card-header">
+          <div class="team-card-icon">&#128269;</div>
+          <div>
+            <div class="team-card-name">Research Team</div>
+            <div class="team-card-workflow">new-project.md</div>
+          </div>
+        </div>
+        <p>Four parallel researchers investigate different dimensions simultaneously, with a synthesizer aggregating findings into a unified research summary.</p>
+        <div class="team-agents">
+          <span class="team-agent-chip">stack-researcher</span>
+          <span class="team-agent-chip">features-researcher</span>
+          <span class="team-agent-chip">architecture-researcher</span>
+          <span class="team-agent-chip">pitfalls-researcher</span>
+          <span class="team-agent-chip">synthesizer</span>
+        </div>
+      </div>
+
+      <div class="team-card reveal reveal-delay-3">
+        <div class="team-card-header">
+          <div class="team-card-icon">&#128203;</div>
+          <div>
+            <div class="team-card-name">Planning Pipeline</div>
+            <div class="team-card-workflow">plan-phase.md</div>
+          </div>
+        </div>
+        <p>Sequential pipeline with task dependencies: researcher feeds planner, planner feeds checker. Revision loops keep the team active across iterations.</p>
+        <div class="team-agents">
+          <span class="team-agent-chip">phase-researcher</span>
+          <span class="team-agent-chip">planner</span>
+          <span class="team-agent-chip">plan-checker</span>
+        </div>
+      </div>
+
+      <div class="team-card reveal reveal-delay-4">
+        <div class="team-card-header">
+          <div class="team-card-icon">&#128506;</div>
+          <div>
+            <div class="team-card-name">Mapping Team</div>
+            <div class="team-card-workflow">map-codebase.md</div>
+          </div>
+        </div>
+        <p>Four focus-area agents explore the codebase simultaneously, each writing structured documents directly. Orchestrator only receives confirmations.</p>
+        <div class="team-agents">
+          <span class="team-agent-chip">tech-mapper</span>
+          <span class="team-agent-chip">arch-mapper</span>
+          <span class="team-agent-chip">quality-mapper</span>
+          <span class="team-agent-chip">concerns-mapper</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lifecycle -->
+    <div class="lifecycle reveal reveal-delay-3">
+      <div class="lifecycle-title">Agent Team Lifecycle</div>
+      <div class="lifecycle-flow">
+        <div class="lifecycle-step">
+          <div class="lifecycle-node">TeamCreate</div>
+          <div class="lifecycle-desc">Initialize team</div>
+        </div>
+        <div class="lifecycle-arrow">&#8594;</div>
+        <div class="lifecycle-step">
+          <div class="lifecycle-node">TaskCreate</div>
+          <div class="lifecycle-desc">Define work items</div>
+        </div>
+        <div class="lifecycle-arrow">&#8594;</div>
+        <div class="lifecycle-step">
+          <div class="lifecycle-node">Spawn</div>
+          <div class="lifecycle-desc">Launch teammates</div>
+        </div>
+        <div class="lifecycle-arrow">&#8594;</div>
+        <div class="lifecycle-step">
+          <div class="lifecycle-node">SendMessage</div>
+          <div class="lifecycle-desc">Coordinate</div>
+        </div>
+        <div class="lifecycle-arrow">&#8594;</div>
+        <div class="lifecycle-step">
+          <div class="lifecycle-node">TaskUpdate</div>
+          <div class="lifecycle-desc">Track progress</div>
+        </div>
+        <div class="lifecycle-arrow">&#8594;</div>
+        <div class="lifecycle-step">
+          <div class="lifecycle-node">TeamDelete</div>
+          <div class="lifecycle-desc">Clean up</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE EXAMPLES -->
+<section class="code-section" id="code-examples">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">In The Code</div>
+      <h2 class="section-title">Agent Teams enhancements</h2>
+      <p class="section-desc">
+        Real examples from the GRD codebase showing exactly where and how
+        Agent Teams were integrated into each workflow.
+      </p>
+    </div>
+
+    <div class="code-tabs reveal reveal-delay-1">
+      <div class="code-tab-bar">
+        <button class="code-tab-btn active" data-tab="tab-execute">execute-phase.md</button>
+        <button class="code-tab-btn" data-tab="tab-research">new-project.md</button>
+        <button class="code-tab-btn" data-tab="tab-plan">plan-phase.md</button>
+        <button class="code-tab-btn" data-tab="tab-map">map-codebase.md</button>
+      </div>
+
+      <!-- TAB: execute-phase -->
+      <div class="code-panel active" id="tab-execute">
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/execute-phase.md</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Step: create_execution_team (NEW)</span>
+
+Create an execution team for this phase:
+
+<span class="new-line"><span class="line-num">81</span><span class="fn">TeamCreate</span>(<span class="param">team_name</span>=<span class="str">"grd-execute-phase-{phase_number}"</span>,</span>
+<span class="new-line"><span class="line-num">  </span>         <span class="param">description</span>=<span class="str">"Phase {phase_number}: {phase_name} execution team"</span>)</span>
+
+Create tasks on the team board for each incomplete plan:
+
+<span class="new-line"><span class="line-num">88</span><span class="kw">For each</span> plan <span class="kw">in</span> incomplete_plans:</span>
+<span class="new-line"><span class="line-num">89</span>  <span class="fn">TaskCreate</span>(</span>
+<span class="new-line"><span class="line-num">90</span>    <span class="param">subject</span>=<span class="str">"Execute plan {plan_id}: {plan_objective}"</span>,</span>
+<span class="new-line"><span class="line-num">91</span>    <span class="param">description</span>=<span class="str">"Wave: {wave}. Files: {files_modified}."</span>,</span>
+<span class="new-line"><span class="line-num">92</span>    <span class="param">activeForm</span>=<span class="str">"Executing plan {plan_id}"</span></span>
+<span class="new-line"><span class="line-num">93</span>  )</span></pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>What changed:</strong> Before, the orchestrator tracked all plan state in its own context window.
+          Now a shared task board (<code>TaskCreate</code>) gives every agent — and the user — a live view of what's running, what's done, and what's blocked.
+        </div>
+
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/execute-phase.md &mdash; agent spawning</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Executor agents now join the team with a name</span>
+
+<span class="line-num">139</span><span class="fn">Task</span>(
+<span class="line-num">140</span>  <span class="param">subagent_type</span>=<span class="str">"grd-executor"</span>,
+<span class="line-num">141</span>  <span class="param">model</span>=<span class="str">"{executor_model}"</span>,
+<span class="new-line"><span class="line-num">142</span>  <span class="param">name</span>=<span class="str">"executor-{plan_id}"</span>,                  <span class="cmt"># named agent</span></span>
+<span class="new-line"><span class="line-num">143</span>  <span class="param">team_name</span>=<span class="str">"grd-execute-phase-{phase_number}"</span>,  <span class="cmt"># joins team</span></span>
+<span class="line-num">144</span>  <span class="param">prompt</span>=<span class="str">"</span>
+<span class="line-num">...</span>
+<span class="new-line"><span class="line-num">165</span>    <span class="str">&lt;team_communication&gt;</span></span>
+<span class="new-line"><span class="line-num">166</span>    <span class="str">Use <span class="fn">SendMessage</span> to notify the orchestrator of blockers.</span></span>
+<span class="new-line"><span class="line-num">167</span>    <span class="str">Your teammate name is 'executor-{plan_id}'.</span></span>
+<span class="new-line"><span class="line-num">168</span>    <span class="str">&lt;/team_communication&gt;</span></span>
+<span class="line-num">...</span>
+<span class="line-num">170</span>)</pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>Key difference:</strong> Each executor now has a <code>name</code> and <code>team_name</code>.
+          This means the orchestrator can see "executor-01-03 is working on plan 3" in the task board,
+          and agents can use <code>SendMessage</code> to flag issues to the lead without waiting to finish.
+        </div>
+
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/execute-phase.md &mdash; cleanup</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Step: shutdown_team (NEW) — clean lifecycle</span>
+
+<span class="new-line"><span class="line-num">364</span><span class="kw">For each</span> active teammate <span class="kw">in</span> the team:</span>
+<span class="new-line"><span class="line-num">365</span>  <span class="fn">SendMessage</span>(</span>
+<span class="new-line"><span class="line-num">366</span>    <span class="param">type</span>=<span class="str">"shutdown_request"</span>,</span>
+<span class="new-line"><span class="line-num">367</span>    <span class="param">recipient</span>=<span class="str">"executor-{plan_id}"</span>,</span>
+<span class="new-line"><span class="line-num">368</span>    <span class="param">content</span>=<span class="str">"Phase execution complete."</span></span>
+<span class="new-line"><span class="line-num">369</span>  )</span>
+
+<span class="new-line"><span class="line-num">374</span><span class="fn">TeamDelete</span>(<span class="param">team_name</span>=<span class="str">"grd-execute-phase-{phase_number}"</span>)</span></pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>Why this matters:</strong> GSD had no formal cleanup — agents were fire-and-forget.
+          GRD gracefully shuts down every teammate and deletes the team, preventing orphaned agents and leaked state.
+        </div>
+      </div>
+
+      <!-- TAB: new-project research -->
+      <div class="code-panel" id="tab-research">
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/new-project.md &mdash; research team</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Step 6: Research — now uses a coordinated team</span>
+
+<span class="new-line"><span class="line-num">383</span><span class="fn">TeamCreate</span>(<span class="param">team_name</span>=<span class="str">"grd-research-{project_slug}"</span>,</span>
+<span class="new-line"><span class="line-num">   </span>         <span class="param">description</span>=<span class="str">"Research team for {project_name}"</span>)</span>
+
+<span class="cmt"># Task board with all 5 research dimensions</span>
+<span class="new-line"><span class="line-num">388</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Research stack"</span>,   <span class="param">activeForm</span>=<span class="str">"Researching stack"</span>)</span>
+<span class="new-line"><span class="line-num">389</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Research features"</span>, <span class="param">activeForm</span>=<span class="str">"Researching features"</span>)</span>
+<span class="new-line"><span class="line-num">390</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Research architecture"</span>, <span class="param">activeForm</span>=<span class="str">"Researching architecture"</span>)</span>
+<span class="new-line"><span class="line-num">391</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Research pitfalls"</span>, <span class="param">activeForm</span>=<span class="str">"Researching pitfalls"</span>)</span>
+<span class="new-line"><span class="line-num">392</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Synthesize findings"</span>, <span class="param">activeForm</span>=<span class="str">"Synthesizing"</span>)</span>
+
+<span class="cmt"># Synthesis blocked until all 4 researchers finish</span>
+<span class="new-line"><span class="line-num">395</span>Set task #5 <span class="param">blockedBy</span>: [<span class="val">#1</span>, <span class="val">#2</span>, <span class="val">#3</span>, <span class="val">#4</span>]</span></pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>Declarative dependencies:</strong> The synthesizer task is <code>blockedBy</code> all 4 researchers.
+          GSD had to manually sequence "wait for all 4, then spawn synthesizer." GRD declares the dependency
+          and the system handles the ordering.
+        </div>
+
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/new-project.md &mdash; named researchers</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Each researcher joins the team with a unique name</span>
+
+<span class="line-num">456</span><span class="fn">Task</span>(<span class="param">prompt</span>=<span class="str">"..."</span>,
+<span class="line-num">   </span>     <span class="param">subagent_type</span>=<span class="str">"general-purpose"</span>,
+<span class="line-num">   </span>     <span class="param">model</span>=<span class="str">"{researcher_model}"</span>,
+<span class="new-line"><span class="line-num">   </span>     <span class="param">team_name</span>=<span class="str">"grd-research-{project_slug}"</span>,</span>
+<span class="new-line"><span class="line-num">   </span>     <span class="param">name</span>=<span class="str">"stack-researcher"</span>)</span>
+
+<span class="line-num">496</span><span class="fn">Task</span>(<span class="param">prompt</span>=<span class="str">"..."</span>,
+<span class="new-line"><span class="line-num">   </span>     <span class="param">team_name</span>=<span class="str">"grd-research-{project_slug}"</span>,</span>
+<span class="new-line"><span class="line-num">   </span>     <span class="param">name</span>=<span class="str">"features-researcher"</span>)</span>
+
+<span class="line-num">536</span><span class="fn">Task</span>(<span class="param">prompt</span>=<span class="str">"..."</span>,
+<span class="new-line"><span class="line-num">   </span>     <span class="param">team_name</span>=<span class="str">"grd-research-{project_slug}"</span>,</span>
+<span class="new-line"><span class="line-num">   </span>     <span class="param">name</span>=<span class="str">"architecture-researcher"</span>)</span>
+
+<span class="line-num">576</span><span class="fn">Task</span>(<span class="param">prompt</span>=<span class="str">"..."</span>,
+<span class="new-line"><span class="line-num">   </span>     <span class="param">team_name</span>=<span class="str">"grd-research-{project_slug}"</span>,</span>
+<span class="new-line"><span class="line-num">   </span>     <span class="param">name</span>=<span class="str">"pitfalls-researcher"</span>)</span></pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>Before vs After:</strong> In GSD, 4 anonymous agents spawned and the orchestrator had to
+          track which output file belonged to which agent. In GRD, each is named — you can see
+          "stack-researcher: Researching stack" in the status line while it works.
+        </div>
+
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/new-project.md &mdash; team cleanup</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Graceful shutdown after research completes</span>
+
+<span class="new-line"><span class="line-num">606</span><span class="fn">SendMessage</span>(<span class="param">type</span>=<span class="str">"shutdown_request"</span>, <span class="param">recipient</span>=<span class="str">"stack-researcher"</span>)</span>
+<span class="new-line"><span class="line-num">607</span><span class="fn">SendMessage</span>(<span class="param">type</span>=<span class="str">"shutdown_request"</span>, <span class="param">recipient</span>=<span class="str">"features-researcher"</span>)</span>
+<span class="new-line"><span class="line-num">608</span><span class="fn">SendMessage</span>(<span class="param">type</span>=<span class="str">"shutdown_request"</span>, <span class="param">recipient</span>=<span class="str">"architecture-researcher"</span>)</span>
+<span class="new-line"><span class="line-num">609</span><span class="fn">SendMessage</span>(<span class="param">type</span>=<span class="str">"shutdown_request"</span>, <span class="param">recipient</span>=<span class="str">"pitfalls-researcher"</span>)</span>
+<span class="new-line"><span class="line-num">610</span><span class="fn">TeamDelete</span>()</span></pre></div>
+        </div>
+      </div>
+
+      <!-- TAB: plan-phase -->
+      <div class="code-panel" id="tab-plan">
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/plan-phase.md &mdash; pipeline team</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Step 4.5: Create Planning Team (NEW)</span>
+<span class="cmt"># Only when multiple agents involved (research + planning + checking)</span>
+
+<span class="new-line"><span class="line-num"> 61</span><span class="fn">TeamCreate</span>(<span class="param">team_name</span>=<span class="str">"grd-plan-phase-{phase_number}"</span>,</span>
+<span class="new-line"><span class="line-num">   </span>         <span class="param">description</span>=<span class="str">"Planning team for phase {phase_number}"</span>)</span>
+
+<span class="cmt"># Define the pipeline as tasks with dependencies</span>
+<span class="new-line"><span class="line-num"> 66</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Research phase {N}"</span>)    <span class="cmt"># Task #1</span></span>
+<span class="new-line"><span class="line-num"> 67</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Create plans for phase {N}"</span>) <span class="cmt"># Task #2</span></span>
+<span class="new-line"><span class="line-num"> 68</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Verify plans for phase {N}"</span>) <span class="cmt"># Task #3</span></span>
+
+<span class="cmt"># Declare the pipeline: research → plan → verify</span>
+<span class="new-line"><span class="line-num"> 76</span><span class="fn">TaskUpdate</span>(<span class="param">taskId</span>=<span class="str">"2"</span>, <span class="param">addBlockedBy</span>=[<span class="val">"1"</span>])  <span class="cmt"># plan waits for research</span></span>
+<span class="new-line"><span class="line-num"> 77</span><span class="fn">TaskUpdate</span>(<span class="param">taskId</span>=<span class="str">"3"</span>, <span class="param">addBlockedBy</span>=[<span class="val">"2"</span>])  <span class="cmt"># verify waits for plan</span></span></pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>Pipeline as data:</strong> The research &rarr; plan &rarr; verify pipeline is expressed as
+          task dependencies, not hardcoded control flow. This means the task board always shows
+          the current pipeline stage, and revision loops naturally re-use the same team.
+        </div>
+
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/plan-phase.md &mdash; progress tracking</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Each stage updates the task board as it progresses</span>
+
+<span class="cmt"># After researcher completes:</span>
+<span class="new-line"><span class="line-num">152</span><span class="fn">TaskUpdate</span>(<span class="param">taskId</span>=<span class="str">"1"</span>, <span class="param">status</span>=<span class="str">"completed"</span>)</span>
+
+<span class="cmt"># Before planner starts:</span>
+<span class="new-line"><span class="line-num">235</span><span class="fn">TaskUpdate</span>(<span class="param">taskId</span>=<span class="str">"2"</span>, <span class="param">status</span>=<span class="str">"in_progress"</span>)</span>
+
+<span class="line-num">238</span><span class="fn">Task</span>(
+<span class="line-num">   </span>  <span class="param">subagent_type</span>=<span class="str">"general-purpose"</span>,
+<span class="line-num">   </span>  <span class="param">model</span>=<span class="str">"{planner_model}"</span>,
+<span class="new-line"><span class="line-num">244</span>  <span class="param">team_name</span>=<span class="str">"grd-plan-phase-{phase_number}"</span>,</span>
+<span class="new-line"><span class="line-num">245</span>  <span class="param">name</span>=<span class="str">"planner"</span></span>
+<span class="line-num">   </span>)
+
+<span class="cmt"># After planner completes:</span>
+<span class="new-line"><span class="line-num">251</span><span class="fn">TaskUpdate</span>(<span class="param">taskId</span>=<span class="str">"2"</span>, <span class="param">status</span>=<span class="str">"completed"</span>)</span>
+
+<span class="cmt"># After checker verifies:</span>
+<span class="new-line"><span class="line-num">313</span><span class="fn">TaskUpdate</span>(<span class="param">taskId</span>=<span class="str">"3"</span>, <span class="param">status</span>=<span class="str">"completed"</span>)</span>
+
+<span class="cmt"># Cleanup when pipeline finishes:</span>
+<span class="new-line"><span class="line-num">381</span><span class="fn">TeamDelete</span>()</span></pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>Observable progress:</strong> Every stage transition is explicit. Call <code>TaskList()</code> at any point
+          and you'll see: Research &#10003; &rarr; Planning (in progress) &rarr; Verification (pending).
+          GSD had none of this — you just waited for the final output.
+        </div>
+      </div>
+
+      <!-- TAB: map-codebase -->
+      <div class="code-panel" id="tab-map">
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/map-codebase.md &mdash; mapping team</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># Step: spawn_agents — now creates a mapping team</span>
+
+<span class="new-line"><span class="line-num"> 93</span><span class="fn">TeamCreate</span>(<span class="param">team_name</span>=<span class="str">"grd-map-codebase"</span>,</span>
+<span class="new-line"><span class="line-num">   </span>         <span class="param">description</span>=<span class="str">"Codebase mapping team"</span>)</span>
+
+<span class="cmt"># One task per focus area</span>
+<span class="new-line"><span class="line-num"> 97</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Map tech stack and integrations"</span>)</span>
+<span class="new-line"><span class="line-num"> 98</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Map architecture and structure"</span>)</span>
+<span class="new-line"><span class="line-num"> 99</span><span class="fn">TaskCreate</span>(<span class="param">subject</span>=<span class="str">"Map conventions and testing"</span>)</span>
+<span class="new-line"><span class="line-num">100</span><span class="fn">TaskCreate</span>(<span class="param">subject</param>=<span class="str">"Map concerns and tech debt"</span>)</span></pre></div>
+        </div>
+
+        <div class="code-file">
+          <div class="code-file-header">
+            <div class="code-file-dots"><span></span><span></span><span></span></div>
+            <span class="code-file-name">get-er-done/workflows/map-codebase.md &mdash; named mappers</span>
+            <span class="code-file-badge added">Teams Enhanced</span>
+          </div>
+          <div class="code-block"><pre><span class="cmt"># All 4 mappers join the team with unique names</span>
+
+<span class="line-num">110</span><span class="fn">Task</span>(
+<span class="line-num">111</span>  <span class="param">subagent_type</span>: <span class="str">"grd-codebase-mapper"</span>,
+<span class="new-line"><span class="line-num">112</span>  <span class="param">team_name</span>:     <span class="str">"grd-map-codebase"</span>,</span>
+<span class="new-line"><span class="line-num">113</span>  <span class="param">name</span>:          <span class="str">"tech-mapper"</span>,</span>
+<span class="line-num">114</span>  <span class="param">description</span>:   <span class="str">"Map codebase tech stack"</span>
+<span class="line-num">   </span>)
+
+<span class="line-num">135</span><span class="fn">Task</span>(
+<span class="new-line"><span class="line-num">137</span>  <span class="param">team_name</span>: <span class="str">"grd-map-codebase"</span>, <span class="param">name</span>: <span class="str">"arch-mapper"</span>)</span>
+
+<span class="line-num">160</span><span class="fn">Task</span>(
+<span class="new-line"><span class="line-num">162</span>  <span class="param">team_name</span>: <span class="str">"grd-map-codebase"</span>, <span class="param">name</span>: <span class="str">"quality-mapper"</span>)</span>
+
+<span class="line-num">185</span><span class="fn">Task</span>(
+<span class="new-line"><span class="line-num">187</span>  <span class="param">team_name</span>: <span class="str">"grd-map-codebase"</span>, <span class="param">name</span>: <span class="str">"concerns-mapper"</span>)</span></pre></div>
+        </div>
+
+        <div class="code-annotation">
+          <strong>Parallel with identity:</strong> All 4 mappers run simultaneously, but each has a name.
+          <code>TaskList()</code> shows: tech-mapper &#10003;, arch-mapper (running), quality-mapper &#10003;, concerns-mapper (running).
+          GSD just spawned 4 anonymous background tasks and hoped for the best.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REBRANDING PROCESS -->
+<section class="rebrand-section" id="process">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">How It Happened</div>
+      <h2 class="section-title">The rebranding process</h2>
+      <p class="section-desc">
+        Two parallel phases executed by a coordinated team of 9 agents.
+        The rebrand itself was a demonstration of the Agent Teams feature being added.
+      </p>
+    </div>
+
+    <div class="rebrand-phases">
+      <div class="rebrand-phase reveal reveal-delay-1">
+        <div class="rebrand-phase-label">Phase 1 &mdash; Rebranding</div>
+        <h3>5 parallel agents</h3>
+        <div class="agent-list">
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">agent-rebrander</span>
+            <span class="agent-item-desc">11 agent files</span>
+          </div>
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">command-rebrander</span>
+            <span class="agent-item-desc">30 command files</span>
+          </div>
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">workflow-rebrander</span>
+            <span class="agent-item-desc">30+ workflow files</span>
+          </div>
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">template-rebrander</span>
+            <span class="agent-item-desc">Templates &amp; references</span>
+          </div>
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">infra-rebrander</span>
+            <span class="agent-item-desc">Installer, hooks, config</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rebrand-phase reveal reveal-delay-2">
+        <div class="rebrand-phase-label">Phase 2 &mdash; Enhancement</div>
+        <h3>4 parallel agents</h3>
+        <div class="agent-list">
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">execute-enhancer</span>
+            <span class="agent-item-desc">Execution teams</span>
+          </div>
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">project-enhancer</span>
+            <span class="agent-item-desc">Research teams</span>
+          </div>
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">plan-enhancer</span>
+            <span class="agent-item-desc">Planning pipeline</span>
+          </div>
+          <div class="agent-item">
+            <div class="agent-dot"></div>
+            <span class="agent-item-name">map-enhancer</span>
+            <span class="agent-item-desc">Mapping teams</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="qa-result reveal reveal-delay-3">
+      <div class="check">&#10003;</div>
+      <div class="qa-text">QA Verification Passed</div>
+      <div class="qa-detail">Zero remaining "gsd" or "get-shit-done" references across all 139 files</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section class="commands-section" id="commands">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Command Reference</div>
+      <h2 class="section-title">27 slash commands</h2>
+      <p class="section-desc">
+        Every command available in GRD, organized by category.
+        Each command invokes a workflow that orchestrates specialized agents.
+      </p>
+    </div>
+
+    <div class="cmd-categories">
+      <!-- Core Workflow -->
+      <div class="cmd-category reveal reveal-delay-1">
+        <div class="cmd-category-header">
+          <div class="cmd-category-dot"></div>
+          <span class="cmd-category-name">Core Workflow</span>
+          <span class="cmd-category-count">5 commands</span>
+        </div>
+        <div class="cmd-list">
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:new-project</span>
+            <span class="cmd-desc">Initialize project with deep context</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:discuss-phase</span>
+            <span class="cmd-desc">Gather context before planning</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:plan-phase</span>
+            <span class="cmd-desc">Research, plan, and verify a phase</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:execute-phase</span>
+            <span class="cmd-desc">Execute plans with wave parallelism</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:verify-work</span>
+            <span class="cmd-desc">Manual user acceptance testing</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Milestone -->
+      <div class="cmd-category reveal reveal-delay-2">
+        <div class="cmd-category-header">
+          <div class="cmd-category-dot"></div>
+          <span class="cmd-category-name">Milestone</span>
+          <span class="cmd-category-count">3 commands</span>
+        </div>
+        <div class="cmd-list">
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:audit-milestone</span>
+            <span class="cmd-desc">Verify milestone completion</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:complete-milestone</span>
+            <span class="cmd-desc">Archive and prepare next version</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:new-milestone</span>
+            <span class="cmd-desc">Start next milestone cycle</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase Management -->
+      <div class="cmd-category reveal reveal-delay-2">
+        <div class="cmd-category-header">
+          <div class="cmd-category-dot"></div>
+          <span class="cmd-category-name">Phase Management</span>
+          <span class="cmd-category-count">5 commands</span>
+        </div>
+        <div class="cmd-list">
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:add-phase</span>
+            <span class="cmd-desc">Append phase to roadmap</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:insert-phase</span>
+            <span class="cmd-desc">Insert urgent work between phases</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:remove-phase</span>
+            <span class="cmd-desc">Remove future phase</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:list-phase-assumptions</span>
+            <span class="cmd-desc">Surface Claude's approach</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:plan-milestone-gaps</span>
+            <span class="cmd-desc">Create gap closure phases</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session -->
+      <div class="cmd-category reveal reveal-delay-3">
+        <div class="cmd-category-header">
+          <div class="cmd-category-dot"></div>
+          <span class="cmd-category-name">Session</span>
+          <span class="cmd-category-count">3 commands</span>
+        </div>
+        <div class="cmd-list">
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:pause-work</span>
+            <span class="cmd-desc">Create context handoff</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:resume-work</span>
+            <span class="cmd-desc">Restore previous session</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:progress</span>
+            <span class="cmd-desc">Check status and route next</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Utilities -->
+      <div class="cmd-category reveal reveal-delay-3">
+        <div class="cmd-category-header">
+          <div class="cmd-category-dot"></div>
+          <span class="cmd-category-name">Utilities</span>
+          <span class="cmd-category-count">11 commands</span>
+        </div>
+        <div class="cmd-list">
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:settings</span>
+            <span class="cmd-desc">Configure workflow toggles</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:set-profile</span>
+            <span class="cmd-desc">Switch model profile</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:add-todo</span>
+            <span class="cmd-desc">Capture idea as todo</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:check-todos</span>
+            <span class="cmd-desc">List pending todos</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:debug</span>
+            <span class="cmd-desc">Systematic debugging</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:quick</span>
+            <span class="cmd-desc">Execute quick task</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:map-codebase</span>
+            <span class="cmd-desc">Analyze existing codebase</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:research-phase</span>
+            <span class="cmd-desc">Standalone phase research</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:help</span>
+            <span class="cmd-desc">Show available commands</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:update</span>
+            <span class="cmd-desc">Update to latest version</span>
+          </div>
+          <div class="cmd-item">
+            <span class="cmd-name">/grd:whats-new</span>
+            <span class="cmd-desc">View changelog</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section" id="stats">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">By The Numbers</div>
+      <h2 class="section-title">Project metrics</h2>
+    </div>
+
+    <div class="stats-mega">
+      <div class="stat-mega-card reveal reveal-delay-1">
+        <div class="stat-mega-value">139</div>
+        <div class="stat-mega-label">Total Files</div>
+      </div>
+      <div class="stat-mega-card reveal reveal-delay-2">
+        <div class="stat-mega-value">960+</div>
+        <div class="stat-mega-label">Replacements</div>
+      </div>
+      <div class="stat-mega-card reveal reveal-delay-3">
+        <div class="stat-mega-value">11</div>
+        <div class="stat-mega-label">AI Agents</div>
+      </div>
+      <div class="stat-mega-card reveal reveal-delay-4">
+        <div class="stat-mega-value">27</div>
+        <div class="stat-mega-label">Commands</div>
+      </div>
+      <div class="stat-mega-card reveal reveal-delay-1">
+        <div class="stat-mega-value">30+</div>
+        <div class="stat-mega-label">Workflows</div>
+      </div>
+      <div class="stat-mega-card reveal reveal-delay-2">
+        <div class="stat-mega-value">4</div>
+        <div class="stat-mega-label">Team-Enhanced</div>
+      </div>
+      <div class="stat-mega-card reveal reveal-delay-3">
+        <div class="stat-mega-value">0</div>
+        <div class="stat-mega-label">Old References</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section class="install-section" id="install">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Getting Started</div>
+      <h2 class="section-title">Install GRD</h2>
+      <p class="section-desc">
+        One command. Works on Mac, Windows, and Linux.
+        Supports Claude Code, OpenCode, and Gemini CLI.
+      </p>
+    </div>
+
+    <!-- Internal distribution notice -->
+    <div class="install-internal-badge reveal reveal-delay-1">
+      <div class="internal-badge-icon">&#128274;</div>
+      <div class="internal-badge-text">
+        <strong>Internal Distribution Only</strong>
+        <span>GRD is not published to npm. Install directly from the shared source directory or a .tgz archive.</span>
+      </div>
+    </div>
+
+    <!-- Main install command -->
+    <div class="install-hero-cmd reveal reveal-delay-1">
+      <button class="copy-btn" onclick="copyInstall(this)">Copy</button>
+      <div class="install-prefix">Navigate to the GRD source directory, then run</div>
+      <div class="install-cmd-line">
+        <span class="prompt">$</span>
+        <span>node bin/install.js <span class="pkg">--claude --global</span></span>
+      </div>
+      <div class="install-note">Interactive installer &mdash; omit flags to be prompted for runtime and location</div>
+    </div>
+
+    <!-- Alternative methods -->
+    <div class="install-methods reveal reveal-delay-2">
+      <div class="install-methods-title">Installation Methods</div>
+      <div class="install-method-grid">
+        <div class="install-method-card primary">
+          <div class="install-method-badge">Recommended</div>
+          <div class="install-method-name">Direct from source</div>
+          <div class="install-method-desc">Clone or copy the GRD folder, then run the installer directly.</div>
+          <div class="install-method-cmds">
+            <div class="runtime-cmd"><span class="dim"># navigate to GRD source</span></div>
+            <div class="runtime-cmd">cd <span class="flag">/path/to/get-er-done</span></div>
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --global</span></div>
+          </div>
+        </div>
+        <div class="install-method-card">
+          <div class="install-method-name">From tarball (.tgz)</div>
+          <div class="install-method-desc">Pack once, distribute the archive. Recipients install with npx.</div>
+          <div class="install-method-cmds">
+            <div class="runtime-cmd"><span class="dim"># creator packs once</span></div>
+            <div class="runtime-cmd">cd /path/to/get-er-done && npm pack</div>
+            <div class="runtime-cmd"><span class="dim"># recipient installs from .tgz</span></div>
+            <div class="runtime-cmd">npx <span class="flag">./get-er-done-cc-1.18.0.tgz</span></div>
+          </div>
+        </div>
+        <div class="install-method-card">
+          <div class="install-method-name">From internal git repo</div>
+          <div class="install-method-desc">Host on your org's Git server. Clone and run the installer.</div>
+          <div class="install-method-cmds">
+            <div class="runtime-cmd">git clone <span class="flag">https://git.internal/grd.git</span></div>
+            <div class="runtime-cmd">cd grd</div>
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --global</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-step flow -->
+    <div class="install-steps reveal reveal-delay-2">
+      <div class="install-step">
+        <div class="install-step-num">1</div>
+        <div class="install-step-title">Get source</div>
+        <div class="install-step-desc">Clone the internal repo, copy the shared folder, or receive the .tgz archive from your team.</div>
+      </div>
+      <div class="install-step">
+        <div class="install-step-num">2</div>
+        <div class="install-step-title">Install</div>
+        <div class="install-step-desc">Run <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">node bin/install.js</strong> from the source directory. Choose runtime and location.</div>
+      </div>
+      <div class="install-step">
+        <div class="install-step-num">3</div>
+        <div class="install-step-title">Verify &amp; Build</div>
+        <div class="install-step-desc">Type <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">/grd:help</strong> in your runtime, then <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">/grd:new-project</strong> to start.</div>
+      </div>
+    </div>
+
+    <!-- Runtime options -->
+    <div class="install-runtimes reveal reveal-delay-2">
+      <div class="install-runtimes-title">Supported Runtimes</div>
+      <div class="runtime-grid">
+        <div class="runtime-card">
+          <div class="runtime-card-name">Claude Code</div>
+          <div class="runtime-card-path">~/.claude/</div>
+          <div class="runtime-card-cmds">
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --global</span></div>
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --local</span></div>
+          </div>
+        </div>
+        <div class="runtime-card">
+          <div class="runtime-card-name">OpenCode</div>
+          <div class="runtime-card-path">~/.config/opencode/</div>
+          <div class="runtime-card-cmds">
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--opencode --global</span></div>
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--opencode --local</span></div>
+          </div>
+        </div>
+        <div class="runtime-card">
+          <div class="runtime-card-name">Gemini CLI</div>
+          <div class="runtime-card-path">~/.gemini/</div>
+          <div class="runtime-card-cmds">
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--gemini --global</span></div>
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--gemini --local</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLI flags -->
+    <div class="install-options reveal reveal-delay-3">
+      <div class="install-options-header">CLI Flags Reference</div>
+      <div class="install-opt-grid">
+        <div class="install-opt-group">
+          <div class="install-opt-group-title">Runtime</div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--claude</span>
+            <span class="install-opt-desc">Install for Claude Code</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--opencode</span>
+            <span class="install-opt-desc">Install for OpenCode</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--gemini</span>
+            <span class="install-opt-desc">Install for Gemini CLI</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--all</span>
+            <span class="install-opt-desc">Install for all runtimes</span>
+          </div>
+        </div>
+        <div class="install-opt-group">
+          <div class="install-opt-group-title">Location</div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--global, -g</span>
+            <span class="install-opt-desc">All projects (home directory)</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--local, -l</span>
+            <span class="install-opt-desc">Current project only (.claude/)</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--uninstall, -u</span>
+            <span class="install-opt-desc">Remove GRD installation</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">--config-dir</span>
+            <span class="install-opt-desc">Custom config directory path</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verify installation -->
+    <div class="install-verify reveal reveal-delay-3">
+      <div class="install-verify-icon">&#10003;</div>
+      <div class="install-verify-text">
+        <h4>Verify Installation</h4>
+        <p>
+          Open your runtime and run <code>/grd:help</code> to see all available commands.
+          If the command is recognized, GRD is installed and ready to use.
+        </p>
+      </div>
+    </div>
+
+    <!-- Pro tip -->
+    <div class="install-tip reveal reveal-delay-4">
+      <div class="install-tip-icon">&#128161;</div>
+      <div class="install-tip-content">
+        <strong>Recommended:</strong> Run Claude Code with <code>claude --dangerously-skip-permissions</code> for frictionless automation.
+        GRD is designed for uninterrupted execution &mdash; stopping to approve <code>git commit</code> and <code>date</code> 50 times defeats the purpose.
+        To update, pull the latest source and re-run <code>node bin/install.js</code>.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MIGRATION -->
+<section class="migrate-section" id="migrate">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">Existing GSD Projects</div>
+      <h2 class="section-title">Migrate from GSD to GRD</h2>
+      <p class="section-desc">
+        Already have a project built with GSD? One command migrates your
+        .planning/ files. Agent Teams enhancements activate automatically.
+      </p>
+    </div>
+
+    <!-- Before / After -->
+    <div class="migrate-flow reveal reveal-delay-1">
+      <div class="migrate-side before">
+        <div class="migrate-side-label">GSD Project</div>
+        <div class="migrate-side-title">Before migration</div>
+        <div class="migrate-side-items">
+          <div class="migrate-item">/gsd:plan-phase 3</div>
+          <div class="migrate-item">gsd-planner, gsd-executor</div>
+          <div class="migrate-item">~/.claude/get-shit-done/</div>
+          <div class="migrate-item">branch: gsd/phase-03-auth</div>
+          <div class="migrate-item">GSD &blacktriangleright; PLANNING</div>
+        </div>
+      </div>
+
+      <div class="migrate-arrow-col">
+        <div class="migrate-arrow-icon">&rarr;</div>
+        <div class="migrate-arrow-text">migrate</div>
+      </div>
+
+      <div class="migrate-side after">
+        <div class="migrate-side-label">GRD Project</div>
+        <div class="migrate-side-title">After migration</div>
+        <div class="migrate-side-items">
+          <div class="migrate-item"><span class="new">/grd:</span>plan-phase 3</div>
+          <div class="migrate-item"><span class="new">grd-</span>planner, <span class="new">grd-</span>executor</div>
+          <div class="migrate-item">~/.claude/<span class="new">get-er-done</span>/</div>
+          <div class="migrate-item">branch: <span class="new">grd</span>/phase-03-auth</div>
+          <div class="migrate-item"><span class="new">GRD</span> &blacktriangleright; PLANNING</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <div class="migrate-steps reveal reveal-delay-2">
+      <div class="migrate-steps-title">Migration Steps</div>
+
+      <div class="migrate-step-list">
+        <div class="migrate-step-item">
+          <div class="migrate-step-header">
+            <div class="migrate-step-number">1</div>
+            <div class="migrate-step-title">Install GRD</div>
+          </div>
+          <div class="migrate-step-body">
+            <p>Install GRD globally from the source directory. GSD and GRD can coexist &mdash; they install to different paths.</p>
+            <code class="migrate-cmd">cd /path/to/get-er-done && node bin/install.js <span class="flag">--claude --global</span></code>
+          </div>
+        </div>
+
+        <div class="migrate-step-item">
+          <div class="migrate-step-header">
+            <div class="migrate-step-number">2</div>
+            <div class="migrate-step-title">Preview changes</div>
+          </div>
+          <div class="migrate-step-body">
+            <p>Run the migration helper in dry-run mode to see what will change without modifying anything.</p>
+            <code class="migrate-cmd">cd /your/project && node /path/to/get-er-done/bin/migrate.js <span class="flag">--dry-run</span></code>
+          </div>
+        </div>
+
+        <div class="migrate-step-item">
+          <div class="migrate-step-header">
+            <div class="migrate-step-number">3</div>
+            <div class="migrate-step-title">Run migration</div>
+            <span class="migrate-step-auto">Auto-backup</span>
+          </div>
+          <div class="migrate-step-body">
+            <p>Apply the migration. A full backup of .planning/ is created automatically before any file is modified.</p>
+            <code class="migrate-cmd">node /path/to/get-er-done/bin/migrate.js <span class="cmt"># creates .planning-backup-{timestamp}/</span></code>
+          </div>
+        </div>
+
+        <div class="migrate-step-item">
+          <div class="migrate-step-header">
+            <div class="migrate-step-number">4</div>
+            <div class="migrate-step-title">Verify and continue</div>
+          </div>
+          <div class="migrate-step-body">
+            <p>Run <code>/grd:progress</code> to see your project status through GRD. Pick up where you left off.</p>
+            <code class="migrate-cmd">/grd:progress <span class="cmt"># shows current phase, next action, full context</span></code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- What the migration helper does -->
+    <div class="install-options reveal reveal-delay-2" style="margin-top:3rem;">
+      <div class="install-options-header">What the Migration Helper Changes</div>
+      <div class="install-opt-grid">
+        <div class="install-opt-group">
+          <div class="install-opt-group-title">References Updated</div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">/gsd: &rarr; /grd:</span>
+            <span class="install-opt-desc">Command references in STATE, ROADMAP</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">gsd-* &rarr; grd-*</span>
+            <span class="install-opt-desc">Agent names in PLANs, SUMMARYs</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">GSD &rarr; GRD</span>
+            <span class="install-opt-desc">Branding in banners, labels</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">paths &rarr; get-er-done</span>
+            <span class="install-opt-desc">Tool path references in docs</span>
+          </div>
+        </div>
+        <div class="install-opt-group">
+          <div class="install-opt-group-title">Config &amp; System</div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">branch templates</span>
+            <span class="install-opt-desc">gsd/phase-* &rarr; grd/phase-*</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">brave API key</span>
+            <span class="install-opt-desc">~/.gsd/ &rarr; ~/.grd/ (if exists)</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">auto-backup</span>
+            <span class="install-opt-desc">.planning-backup-{timestamp}/ created</span>
+          </div>
+          <div class="install-opt-item">
+            <span class="install-opt-flag">verification</span>
+            <span class="install-opt-desc">Post-migration scan for remnants</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Teams automatic activation -->
+    <div class="migrate-teams-callout reveal reveal-delay-3">
+      <h3>Agent Teams activate automatically</h3>
+      <p>
+        You don't need to change anything in your project for Agent Teams to work.
+        The enhancements live in GRD's <strong>workflow layer</strong> (the installed tool),
+        not in your project's <strong>data layer</strong> (.planning/ files).
+      </p>
+      <div class="layer-diagram">
+        <div class="layer-row data-layer">
+          <div class="layer-name">.planning/<span class="layer-badge unchanged">unchanged</span></div>
+          <div class="layer-detail"><span class="files">STATE.md, ROADMAP.md, PLANs, config.json</span> &mdash; your project data</div>
+        </div>
+        <div class="layer-row arrow-row">
+          <div class="layer-arrow"><span class="arrow-char">&darr;</span> <span class="arrow-label">read by</span></div>
+        </div>
+        <div class="layer-row workflow-layer">
+          <div class="layer-name">GRD Workflows<span class="layer-badge enhanced">enhanced</span></div>
+          <div class="layer-detail"><span class="files">execute-phase.md, new-project.md, plan-phase.md, map-codebase.md</span> &mdash; orchestration with Agent Teams</div>
+        </div>
+        <div class="layer-row arrow-row">
+          <div class="layer-arrow"><span class="arrow-char">&darr;</span> <span class="arrow-label">spawns</span></div>
+        </div>
+        <div class="layer-row agent-layer">
+          <div class="layer-name">Named Agents<span class="layer-badge enhanced">teams</span></div>
+          <div class="layer-detail"><span class="files">executor-01, stack-researcher, planner, arch-mapper</span> &mdash; persistent teams, shared task board</div>
+        </div>
+      </div>
+      <p>
+        The moment you switch from <code>/gsd:execute-phase</code> to <code>/grd:execute-phase</code>,
+        your execution gets persistent teams, named agents, task boards, and <code>SendMessage</code>
+        coordination &mdash; with zero changes to your existing .planning/ files.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span class="accent">GRD</span> // Get eR Done</div>
+  <div class="footer-tagline">AI-powered project orchestration for Claude Code</div>
+  <div class="footer-credit">Built with Claude Code Agent Teams &mdash; 2026</div>
+</footer>
+
+<script>
+// Scroll-triggered reveal animations
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, {
+  threshold: 0.1,
+  rootMargin: '0px 0px -40px 0px'
+});
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Smooth scroll for nav links
+document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+
+// Animate stat counters on scroll
+const statObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = el.textContent.replace('+', '');
+      const isPlus = el.textContent.includes('+');
+      const num = parseInt(target);
+      if (isNaN(num)) return;
+
+      let current = 0;
+      const duration = 1500;
+      const step = Math.max(1, Math.floor(num / (duration / 16)));
+      const timer = setInterval(() => {
+        current += step;
+        if (current >= num) {
+          current = num;
+          clearInterval(timer);
+        }
+        el.textContent = current + (isPlus ? '+' : '');
+      }, 16);
+      statObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.stat-value, .stat-mega-value').forEach(el => {
+  statObserver.observe(el);
+});
+
+// Code example tabs
+document.querySelectorAll('.code-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tabId = btn.dataset.tab;
+    btn.closest('.code-tabs').querySelectorAll('.code-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.closest('.code-tabs').querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  });
+});
+
+// Copy install command
+function copyInstall(btn) {
+  navigator.clipboard.writeText('node bin/install.js --claude --global').then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

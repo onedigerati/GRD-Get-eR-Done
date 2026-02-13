@@ -1,16 +1,16 @@
 <div align="center">
 
-# GET eR DONE
+# GRD — Get eR Done
 
-**A light-weight and powerful meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode, and Gemini CLI.**
+**Meta-prompting, context engineering, and spec-driven development for Claude Code, OpenCode, and Gemini CLI — enhanced with persistent Agent Teams for coordinated multi-agent orchestration.**
 
 **Solves context rot — the quality degradation that happens as Claude fills its context window.**
 
 [![npm version](https://img.shields.io/npm/v/get-er-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-er-done-cc)
 [![npm downloads](https://img.shields.io/npm/dm/get-er-done-cc?style=for-the-badge&logo=npm&logoColor=white&color=CB3837)](https://www.npmjs.com/package/get-er-done-cc)
 [![Discord](https://img.shields.io/badge/Discord-Join-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/5JJgD5svVS)
-[![X (Twitter)](https://img.shields.io/badge/X-@gsd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/gsd_foundation)
-[![$GSD Token](https://img.shields.io/badge/$GSD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
+[![X (Twitter)](https://img.shields.io/badge/X-@grd__foundation-000000?style=for-the-badge&logo=x&logoColor=white)](https://x.com/grd_foundation)
+[![$GRD Token](https://img.shields.io/badge/$GRD-Dexscreener-1C1C1C?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSIxMCIgZmlsbD0iIzAwRkYwMCIvPjwvc3ZnPg==&logoColor=00FF00)](https://dexscreener.com/solana/dwudwjvan7bzkw9zwlbyv6kspdlvhwzrqy6ebk8xzxkv)
 [![GitHub stars](https://img.shields.io/github/stars/glittercowboy/get-er-done?style=for-the-badge&logo=github&color=181717)](https://github.com/glittercowboy/get-er-done)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
@@ -38,25 +38,34 @@ npx get-er-done-cc@latest
 
 **Trusted by engineers at Amazon, Google, Shopify, and Webflow.**
 
-[Why I Built This](#why-i-built-this) · [How It Works](#how-it-works) · [Commands](#commands) · [Why It Works](#why-it-works)
+[About GRD](#about-grd) · [How It Works](#how-it-works) · [Commands](#commands) · [Why It Works](#why-it-works) · [Migrating from GSD](#migrating-from-gsd)
 
 </div>
 
 ---
 
-## Why I Built This
+## About GRD
 
-I'm a solo developer. I don't write code — Claude Code does.
+GRD (Get eR Done) is built on [GSD (Get Shit Done)](https://github.com/glittercowboy/get-er-done), the spec-driven development system created by **TÂCHES**. GSD established the core philosophy: the complexity belongs in the system, not in your workflow. Behind the scenes, context engineering, XML prompt formatting, subagent orchestration, and state management. What you see: a few commands that just work.
 
-Other spec-driven development tools exist; BMAD, Speckit... But they all seem to make things way more complicated than they need to be (sprint ceremonies, story points, stakeholder syncs, retrospectives, Jira workflows) or lack real big picture understanding of what you're building. I'm not a 50-person software company. I don't want to play enterprise theater. I'm just a creative person trying to build great things that work.
+GRD takes that foundation and adds **persistent Agent Teams** — named agents that join teams, share task boards, communicate directly with each other, and shut down cleanly. Where GSD agents were fire-and-forget (spawn, execute, vanish), GRD agents are coordinated teammates with identity, shared state, and a full lifecycle.
 
-So I built GRD. The complexity is in the system, not in your workflow. Behind the scenes: context engineering, XML prompt formatting, subagent orchestration, state management. What you see: a few commands that just work.
+### What GRD adds beyond GSD
 
-The system gives Claude everything it needs to do the work *and* verify it. I trust the workflow. It just does a good job.
+| Capability | GSD | GRD |
+|-----------|-----|-----|
+| Agent model | Fire-and-forget | Persistent teams with named agents |
+| Coordination | Orchestrator polls sequentially | `SendMessage` for direct agent-to-agent communication |
+| Task tracking | Implicit (in orchestrator memory) | `TaskCreate` / `TaskList` — shared board survives context resets |
+| Dependencies | Hardcoded wave ordering | Declarative `blockedBy` / `blocks` — agents auto-wait |
+| Observability | Final output only | Named agents + live task board |
+| Failure recovery | Re-spawn from scratch | Re-message idle agents with new instructions |
+| State management | Regex-based markdown parsing | Deterministic `grd-tools.js` commands with test coverage |
+| Plan verification | 6 dimensions | 7 dimensions (adds Context Compliance for user decisions) |
+| Executor safety | No self-check | Self-check verifies files exist and commits match claims |
+| Branding | Not suitable for all workplaces | Professional and workplace-friendly |
 
-That's what this is. No enterprise roleplay. Just an incredibly effective system for building cool stuff consistently using Claude Code.
-
-— **TÂCHES**
+> **Credit:** The core workflow, context engineering approach, XML prompt formatting, and multi-agent architecture are all from GSD by TÂCHES. GRD builds on that work with Agent Teams integration, quality gates, and deterministic tooling. GSD is an outstanding system — GRD makes it better.
 
 ---
 
@@ -390,6 +399,53 @@ The orchestrator never does heavy lifting. It spawns agents, waits, integrates r
 
 **The result:** You can run an entire phase — deep research, multiple plans created and verified, thousands of lines of code written across parallel executors, automated verification against goals — and your main context window stays at 30-40%. The work happens in fresh subagent contexts. Your session stays fast and responsive.
 
+### Agent Teams
+
+GRD enhances four core workflows with Claude Code Agent Teams:
+
+| Team | Workflow | Agents |
+|------|----------|--------|
+| **Execution Team** | `execute-phase` | `executor-01`, `executor-02`, ..., `grd-verifier` |
+| **Research Team** | `new-project` | `stack-researcher`, `features-researcher`, `architecture-researcher`, `pitfalls-researcher`, `synthesizer` |
+| **Planning Pipeline** | `plan-phase` | `phase-researcher`, `planner`, `plan-checker` |
+| **Mapping Team** | `map-codebase` | `tech-mapper`, `arch-mapper`, `quality-mapper`, `concerns-mapper` |
+
+Every team follows the same lifecycle: `TeamCreate` → `TaskCreate` (define work) → `Spawn` (launch teammates) → `SendMessage` (coordinate) → `TaskUpdate` (track progress) → `TeamDelete` (clean up).
+
+Key benefits:
+- **Persistent teams** — agents stay warm between waves, no re-spawn overhead
+- **Shared task board** — `TaskList()` shows who's doing what, in real-time
+- **Direct communication** — agents message each other, not just through the orchestrator
+- **Declarative dependencies** — `blockedBy` replaces hardcoded wave sequencing
+- **Clean lifecycle** — every team gets graceful shutdown and cleanup, no orphaned agents
+
+### Quality Engineering
+
+GRD introduces quality gates at every stage that reduce cascading errors across multi-phase projects:
+
+- **Context Compliance** — Plan-checker has a 7th verification dimension that checks plans honor user decisions from `CONTEXT.md` before execution begins
+- **Deterministic state** — Agents use `grd-tools.js state` commands instead of regex-based markdown parsing, with test coverage and atomic writes
+- **Executor self-check** — After writing SUMMARY.md, the executor verifies each claimed file exists on disk and each commit hash exists in git log before proceeding
+- **Condensed prompts** — Agent instructions are ~48% smaller, leaving more of the context window for actual work
+- **Structured history** — `grd-tools.js history-digest` compiles summaries into scored JSON for better-informed planning
+- **Safer git operations** — Stages specific files individually (never `git add -A`), preventing accidental commits of unrelated changes
+
+### System Architecture
+
+GRD is organized in four layers, each with a clear responsibility:
+
+```
+Commands (27)     /grd:new-project, /grd:plan-phase, /grd:execute-phase, ...
+    ↓
+Workflows (30+)   new-project.md, plan-phase.md, execute-phase.md, ...
+    ↓
+Agents (11)       grd-planner, grd-executor, grd-verifier, grd-debugger, ...
+    ↓
+Tools (20+)       grd-tools.js — state, commit, resolve-model, validate, ...
+```
+
+Commands are thin entry points. Workflows orchestrate. Agents do the heavy lifting in fresh context windows. Tools handle atomic operations deterministically.
+
 ### Atomic Git Commits
 
 Each task gets its own commit immediately after completion:
@@ -441,12 +497,6 @@ You're never locked in. The system adapts.
 | `/grd:update` | Update GRD with changelog preview |
 | `/grd:join-discord` | Join the GRD Discord community |
 
-### Brownfield
-
-| Command | What it does |
-|---------|--------------|
-| `/grd:map-codebase` | Analyze existing codebase before new-project |
-
 ### Phase Management
 
 | Command | What it does |
@@ -474,6 +524,8 @@ You're never locked in. The system adapts.
 | `/grd:check-todos` | List pending todos |
 | `/grd:debug [desc]` | Systematic debugging with persistent state |
 | `/grd:quick` | Execute ad-hoc task with GRD guarantees |
+| `/grd:research-phase [N]` | Standalone phase research (usually use plan-phase instead) |
+| `/grd:map-codebase` | Analyze existing codebase before new-project |
 
 <sup>¹ Contributed by reddit user OracleGreyBeard</sup>
 
@@ -578,6 +630,43 @@ This prevents Claude from reading these files entirely, regardless of what comma
 
 ---
 
+## Migrating from GSD
+
+Already have a project built with GSD? A migration helper updates your `.planning/` files. Agent Teams enhancements activate automatically — they live in GRD's workflow layer, not in your project data.
+
+### Steps
+
+1. **Install GRD** — GSD and GRD coexist (different install paths):
+   ```bash
+   npx get-er-done-cc@latest
+   ```
+
+2. **Preview changes** — Dry-run to see what will change without modifying anything:
+   ```bash
+   node /path/to/get-er-done/bin/migrate.js --dry-run
+   ```
+
+3. **Run migration** — A full backup of `.planning/` is created automatically:
+   ```bash
+   node /path/to/get-er-done/bin/migrate.js
+   ```
+
+4. **Verify** — Run `/grd:progress` to see your project through GRD and pick up where you left off.
+
+### What Changes
+
+| Category | Before | After |
+|----------|--------|-------|
+| Commands | `/gsd:plan-phase` | `/grd:plan-phase` |
+| Agents | `gsd-planner`, `gsd-executor` | `grd-planner`, `grd-executor` |
+| Paths | `get-shit-done/` | `get-er-done/` |
+| Branches | `gsd/phase-*` | `grd/phase-*` |
+| Branding | `GSD` labels | `GRD` labels |
+
+Your `.planning/` data files (STATE.md, ROADMAP.md, PLANs, config.json) are unchanged structurally. The migration updates references only. Agent Teams activate the moment you use `/grd:execute-phase` instead of `/gsd:execute-phase` — zero changes to your existing project files required.
+
+---
+
 ## Troubleshooting
 
 **Commands not found after install?**
@@ -619,7 +708,9 @@ This removes all GRD commands, agents, hooks, and settings while preserving your
 
 ---
 
-## Community Ports
+## Credits & Community
+
+GRD is built on **[GSD (Get Shit Done)](https://github.com/glittercowboy/get-er-done)** by **TÂCHES** — the original spec-driven development system for Claude Code. The core workflow, context engineering architecture, XML prompt formatting, and multi-agent orchestration are all from GSD. GRD extends that foundation with Agent Teams, quality gates, and deterministic tooling.
 
 OpenCode and Gemini CLI are now natively supported via `npx get-er-done-cc`.
 
@@ -652,6 +743,6 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**Claude Code is powerful. GRD makes it reliable.**
+**GSD laid the foundation. GRD takes it further. Claude Code does the rest.**
 
 </div>
