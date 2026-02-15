@@ -3460,78 +3460,65 @@ Create tasks on the team board for each incomplete plan:
       </p>
     </div>
 
-    <!-- Internal distribution notice -->
-    <div class="install-internal-badge reveal reveal-delay-1">
-      <div class="internal-badge-icon">&#128274;</div>
-      <div class="internal-badge-text">
-        <strong>Internal Distribution Only</strong>
-        <span>GRD is not published to npm. Install directly from the shared source directory or a .tgz archive.</span>
-      </div>
-    </div>
-
     <!-- Main install command -->
     <div class="install-hero-cmd reveal reveal-delay-1">
       <button class="copy-btn" onclick="copyInstall(this)">Copy</button>
-      <div class="install-prefix">Navigate to the GRD source directory, then run</div>
+      <div class="install-prefix">Quick Install</div>
       <div class="install-cmd-line">
         <span class="prompt">$</span>
-        <span>node bin/install.js <span class="pkg">--claude --global</span></span>
+        <span>npx <span class="pkg">get-er-done-cc@latest</span></span>
       </div>
-      <div class="install-note">Interactive installer &mdash; omit flags to be prompted for runtime and location</div>
-    </div>
-
-    <!-- Alternative methods -->
-    <div class="install-methods reveal reveal-delay-2">
-      <div class="install-methods-title">Installation Methods</div>
-      <div class="install-method-grid">
-        <div class="install-method-card primary">
-          <div class="install-method-badge">Recommended</div>
-          <div class="install-method-name">Direct from source</div>
-          <div class="install-method-desc">Clone or copy the GRD folder, then run the installer directly.</div>
-          <div class="install-method-cmds">
-            <div class="runtime-cmd"><span class="dim"># navigate to GRD source</span></div>
-            <div class="runtime-cmd">cd <span class="flag">/path/to/get-er-done</span></div>
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --global</span></div>
-          </div>
-        </div>
-        <div class="install-method-card">
-          <div class="install-method-name">From tarball (.tgz)</div>
-          <div class="install-method-desc">Pack once, distribute the archive. Recipients install with npx.</div>
-          <div class="install-method-cmds">
-            <div class="runtime-cmd"><span class="dim"># creator packs once</span></div>
-            <div class="runtime-cmd">cd /path/to/get-er-done && npm pack</div>
-            <div class="runtime-cmd"><span class="dim"># recipient installs from .tgz</span></div>
-            <div class="runtime-cmd">npx <span class="flag">./get-er-done-cc-1.18.0.tgz</span></div>
-          </div>
-        </div>
-        <div class="install-method-card">
-          <div class="install-method-name">From internal git repo</div>
-          <div class="install-method-desc">Host on your org's Git server. Clone and run the installer.</div>
-          <div class="install-method-cmds">
-            <div class="runtime-cmd">git clone <span class="flag">https://git.internal/grd.git</span></div>
-            <div class="runtime-cmd">cd grd</div>
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --global</span></div>
-          </div>
-        </div>
-      </div>
+      <div class="install-note">Interactive installer &mdash; prompts for runtime selection and install location</div>
     </div>
 
     <!-- 3-step flow -->
     <div class="install-steps reveal reveal-delay-2">
       <div class="install-step">
         <div class="install-step-num">1</div>
-        <div class="install-step-title">Get source</div>
-        <div class="install-step-desc">Clone the internal repo, copy the shared folder, or receive the .tgz archive from your team.</div>
+        <div class="install-step-title">Install</div>
+        <div class="install-step-desc">Run <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">npx get-er-done-cc@latest</strong> and choose your runtime and install location.</div>
       </div>
       <div class="install-step">
         <div class="install-step-num">2</div>
-        <div class="install-step-title">Install</div>
-        <div class="install-step-desc">Run <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">node bin/install.js</strong> from the source directory. Choose runtime and location.</div>
+        <div class="install-step-title">Verify</div>
+        <div class="install-step-desc">Type <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">/grd:help</strong> in your chosen runtime to confirm the installation.</div>
       </div>
       <div class="install-step">
         <div class="install-step-num">3</div>
-        <div class="install-step-title">Verify &amp; Build</div>
-        <div class="install-step-desc">Type <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">/grd:help</strong> in your runtime, then <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">/grd:new-project</strong> to start.</div>
+        <div class="install-step-title">Build</div>
+        <div class="install-step-desc">Run <strong style="color:var(--cyan);font-family:var(--mono);font-size:0.82rem;">/grd:new-project</strong> to initialize your first project and start building.</div>
+      </div>
+    </div>
+
+    <!-- Installation methods -->
+    <div class="install-methods reveal reveal-delay-2">
+      <div class="install-methods-title">Installation Methods</div>
+      <div class="install-method-grid">
+        <div class="install-method-card primary">
+          <div class="install-method-badge">Recommended</div>
+          <div class="install-method-name">Interactive (npx)</div>
+          <div class="install-method-desc">Run the installer and follow the prompts for runtime and location.</div>
+          <div class="install-method-cmds">
+            <div class="runtime-cmd">npx <span class="flag">get-er-done-cc@latest</span></div>
+          </div>
+        </div>
+        <div class="install-method-card">
+          <div class="install-method-name">Non-interactive</div>
+          <div class="install-method-desc">Use flags to skip prompts. Ideal for Docker, CI pipelines, or scripted setups.</div>
+          <div class="install-method-cmds">
+            <div class="runtime-cmd">npx get-er-done-cc@latest <span class="flag">--claude --global</span></div>
+            <div class="runtime-cmd">npx get-er-done-cc@latest <span class="flag">--all --global</span></div>
+          </div>
+        </div>
+        <div class="install-method-card">
+          <div class="install-method-name">Development (source)</div>
+          <div class="install-method-desc">Clone the repo for local development and testing modifications.</div>
+          <div class="install-method-cmds">
+            <div class="runtime-cmd">git clone <span class="flag">https://github.com/glittercowboy/get-er-done.git</span></div>
+            <div class="runtime-cmd">cd get-er-done</div>
+            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --local</span></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -3543,24 +3530,22 @@ Create tasks on the team board for each incomplete plan:
           <div class="runtime-card-name">Claude Code</div>
           <div class="runtime-card-path">~/.claude/</div>
           <div class="runtime-card-cmds">
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --global</span></div>
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--claude --local</span></div>
+            <div class="runtime-cmd">npx get-er-done-cc@latest <span class="flag">--claude --global</span></div>
+            <div class="runtime-cmd">npx get-er-done-cc@latest <span class="flag">--claude --local</span></div>
           </div>
         </div>
         <div class="runtime-card">
           <div class="runtime-card-name">OpenCode</div>
           <div class="runtime-card-path">~/.config/opencode/</div>
           <div class="runtime-card-cmds">
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--opencode --global</span></div>
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--opencode --local</span></div>
+            <div class="runtime-cmd">npx get-er-done-cc@latest <span class="flag">--opencode --global</span></div>
           </div>
         </div>
         <div class="runtime-card">
           <div class="runtime-card-name">Gemini CLI</div>
           <div class="runtime-card-path">~/.gemini/</div>
           <div class="runtime-card-cmds">
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--gemini --global</span></div>
-            <div class="runtime-cmd">node bin/install.js <span class="flag">--gemini --local</span></div>
+            <div class="runtime-cmd">npx get-er-done-cc@latest <span class="flag">--gemini --global</span></div>
           </div>
         </div>
       </div>
@@ -3599,14 +3584,6 @@ Create tasks on the team board for each incomplete plan:
             <span class="install-opt-flag">--local, -l</span>
             <span class="install-opt-desc">Current project only (.claude/)</span>
           </div>
-          <div class="install-opt-item">
-            <span class="install-opt-flag">--uninstall, -u</span>
-            <span class="install-opt-desc">Remove GRD installation</span>
-          </div>
-          <div class="install-opt-item">
-            <span class="install-opt-flag">--config-dir</span>
-            <span class="install-opt-desc">Custom config directory path</span>
-          </div>
         </div>
       </div>
     </div>
@@ -3623,13 +3600,13 @@ Create tasks on the team board for each incomplete plan:
       </div>
     </div>
 
-    <!-- Pro tip -->
+    <!-- Pro tip: permissions -->
     <div class="install-tip reveal reveal-delay-4">
       <div class="install-tip-icon">&#128161;</div>
       <div class="install-tip-content">
         <strong>Recommended:</strong> Run Claude Code with <code>claude --dangerously-skip-permissions</code> for frictionless automation.
         GRD is designed for uninterrupted execution &mdash; stopping to approve <code>git commit</code> and <code>date</code> 50 times defeats the purpose.
-        To update, pull the latest source and re-run <code>node bin/install.js</code>.
+        To stay current, update periodically with <code>npx get-er-done-cc@latest</code>.
       </div>
     </div>
   </div>
@@ -3690,8 +3667,8 @@ Create tasks on the team board for each incomplete plan:
             <div class="migrate-step-title">Install GRD</div>
           </div>
           <div class="migrate-step-body">
-            <p>Install GRD globally from the source directory. GSD and GRD can coexist &mdash; they install to different paths.</p>
-            <code class="migrate-cmd">cd /path/to/get-er-done && node bin/install.js <span class="flag">--claude --global</span></code>
+            <p>Install GRD globally. GSD and GRD can coexist &mdash; they install to different paths.</p>
+            <code class="migrate-cmd">npx get-er-done-cc@latest <span class="flag">--claude --global</span></code>
           </div>
         </div>
 
@@ -3903,7 +3880,7 @@ navLinks.querySelectorAll('a').forEach(link => {
 
 // Copy install command
 function copyInstall(btn) {
-  navigator.clipboard.writeText('node bin/install.js --claude --global').then(() => {
+  navigator.clipboard.writeText('npx get-er-done-cc@latest').then(() => {
     btn.textContent = 'Copied!';
     btn.classList.add('copied');
     setTimeout(() => {
