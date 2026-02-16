@@ -67,7 +67,8 @@ Display banner:
  GRD â–º RESEARCHING PHASE {X}
 â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-â—† Spawning researcher...
+â—† Spawning researcher â€" produces `{phase}-RESEARCH.md`
+  Focus: How to implement Phase {X}: {phase_name}
 ```
 
 ### Spawn grd-phase-researcher
@@ -153,7 +154,8 @@ Display banner:
  GRD â–º PLANNING PHASE {X}
 â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-â—† Spawning planner...
+â—† Spawning planner â€" produces PLAN.md files in `{phase_dir}/`
+  Focus: Task breakdown, dependencies, wave assignment for Phase {X}
 ```
 
 Planner prompt:
@@ -220,7 +222,8 @@ Display banner:
  GRD â–º VERIFYING PLANS
 â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-â—† Spawning plan checker...
+â—† Spawning plan checker â€" verifies plans achieve Phase {X} goal
+  Focus: Goal-backward analysis, requirement coverage, gap detection
 ```
 
 ```bash

@@ -83,16 +83,27 @@ Plans: 3/5 complete
 
 ## Spawning Indicators
 
+**Single agent (with output and focus):**
 ```
-â—† Spawning researcher...
+â—† Spawning researcher â€" produces `{phase}-RESEARCH.md`
+  Focus: How to implement Phase {X}: {phase_name}
+```
 
-â—† Spawning 4 researchers in parallel...
-  â†’ Stack research
-  â†’ Features research
-  â†’ Architecture research
-  â†’ Pitfalls research
+**Team briefing (multi-agent â€" show before spawning):**
+```
+â—† Assembling team: {team-name} â€" {count} agents
 
-âœ“ Researcher complete: STACK.md written
+| # | Role | Produces | Focus |
+|---|------|----------|-------|
+| 1 | Stack Researcher | `.planning/research/STACK.md` | Languages, frameworks, dependencies |
+| 2 | Feature Researcher | `.planning/research/FEATURES.md` | Table stakes vs differentiators |
+
+Spawning {count} agents in parallel...
+```
+
+**Completion:**
+```
+âœ" Researcher complete: STACK.md written
 ```
 
 ---

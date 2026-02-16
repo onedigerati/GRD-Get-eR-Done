@@ -412,7 +412,30 @@ GRD enhances four core workflows with Claude Code Agent Teams:
 
 Every team follows the same lifecycle: `TeamCreate` → `TaskCreate` (define work) → `Spawn` (launch teammates) → `SendMessage` (coordinate) → `TaskUpdate` (track progress) → `TeamDelete` (clean up).
 
+**Team Briefing** — Before agents launch, the orchestrator displays a composition table so you know exactly what's being assembled:
+
+```
+◆ Assembling team: grd-project-research — 4 agents
+
+| # | Role                    | Produces                              | Focus                                         |
+|---|-------------------------|---------------------------------------|-----------------------------------------------|
+| 1 | Stack Researcher        | .planning/research/STACK.md           | Languages, frameworks, dependencies, versions |
+| 2 | Feature Researcher      | .planning/research/FEATURES.md        | Table stakes vs differentiators, complexity   |
+| 3 | Architecture Researcher | .planning/research/ARCHITECTURE.md    | Component boundaries, data flow, build order  |
+| 4 | Pitfalls Researcher     | .planning/research/PITFALLS.md        | Common mistakes, warning signs, prevention    |
+
+Spawning 4 agents in parallel...
+```
+
+For single-agent stages (research, planning, verification), a lighter inline format is used:
+
+```
+◆ Spawning researcher — produces 01-RESEARCH.md
+  Focus: How to implement Phase 1: Core Authentication
+```
+
 Key benefits:
+- **Transparent composition** — see every agent's role, output, and focus before work begins
 - **Persistent teams** — agents stay warm between waves, no re-spawn overhead
 - **Shared task board** — `TaskList()` shows who's doing what, in real-time
 - **Direct communication** — agents message each other, not just through the orchestrator

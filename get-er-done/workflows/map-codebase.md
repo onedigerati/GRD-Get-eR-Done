@@ -99,6 +99,20 @@ TaskCreate(subject="Map conventions and testing", description="Analyze code styl
 TaskCreate(subject="Map concerns and tech debt", description="Analyze technical debt, bugs, security issues, performance, fragile areas. Write CONCERNS.md.", activeForm="Mapping concerns")
 ```
 
+Display team briefing:
+```
+â—† Assembling team: grd-codebase-mapping â€" 4 agents
+
+| # | Role | Produces | Focus |
+|---|------|----------|-------|
+| 1 | Tech Mapper | `STACK.md`, `INTEGRATIONS.md` | Languages, frameworks, external APIs, databases |
+| 2 | Architecture Mapper | `ARCHITECTURE.md`, `STRUCTURE.md` | System patterns, layers, directory layout |
+| 3 | Quality Mapper | `CONVENTIONS.md`, `TESTING.md` | Code style, naming patterns, test framework |
+| 4 | Concerns Mapper | `CONCERNS.md` | Technical debt, security issues, fragile areas |
+
+Spawning 4 agents in background...
+```
+
 Spawn 4 parallel grd-codebase-mapper agents as team members.
 
 Use Task tool with `subagent_type="grd-codebase-mapper"`, `model="{mapper_model}"`, `team_name="grd-codebase-mapping"`, and `run_in_background=true` for parallel execution.

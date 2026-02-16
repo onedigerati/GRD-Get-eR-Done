@@ -105,8 +105,16 @@ node ~/.claude/get-er-done/bin/grd-tools.js config-set workflow.research false
  GRD â–º RESEARCHING
 â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-â—† Spawning 4 researchers in parallel (team: grd-milestone-research)...
-  â†' Stack, Features, Architecture, Pitfalls
+â—† Assembling team: grd-milestone-research â€" 4 agents
+
+| # | Role | Produces | Focus |
+|---|------|----------|-------|
+| 1 | Stack Researcher | `.planning/research/STACK.md` | Stack additions/changes for new features |
+| 2 | Feature Researcher | `.planning/research/FEATURES.md` | Expected behavior, table stakes, differentiators |
+| 3 | Architecture Researcher | `.planning/research/ARCHITECTURE.md` | Integration with existing architecture |
+| 4 | Pitfalls Researcher | `.planning/research/PITFALLS.md` | Common mistakes when adding these features |
+
+Spawning 4 agents in parallel...
 ```
 
 ```bash
@@ -174,6 +182,12 @@ TaskList()  # All 4 research tasks should show 'completed'
 After all 4 complete, tear down the research team and spawn synthesizer:
 ```
 TeamDelete(name="grd-milestone-research")
+```
+
+Display synthesizer indicator:
+```
+â—† Spawning synthesizer â€" produces `.planning/research/SUMMARY.md`
+  Focus: Aggregate findings from all 4 research dimensions
 ```
 
 ```
@@ -279,7 +293,8 @@ node ~/.claude/get-er-done/bin/grd-tools.js commit "docs: define milestone v[X.Y
  GRD â–º CREATING ROADMAP
 â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-â—† Spawning roadmapper...
+â—† Spawning roadmapper â€" produces `.planning/ROADMAP.md`, `.planning/STATE.md`
+  Focus: Phase breakdown, requirement mapping, success criteria derivation
 ```
 
 **Starting phase number:** Read MILESTONES.md for last phase number. Continue from there (v1.0 ended at phase 5 â†’ v1.1 starts at phase 6).

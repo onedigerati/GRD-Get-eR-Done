@@ -2224,6 +2224,185 @@ footer .footer-credit {
   .stats-mega { grid-template-columns: 1fr 1fr; }
   .cmd-list { grid-template-columns: 1fr; }
 }
+
+/* ========== TEAM BRIEFING PREVIEW ========== */
+.briefing-showcase {
+  margin-top: 5rem;
+}
+.briefing-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.briefing-tabs::-webkit-scrollbar { display: none; }
+.briefing-tab-btn {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  padding: 0.9rem 1.5rem;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+.briefing-tab-btn:hover { color: var(--text-secondary); }
+.briefing-tab-btn.active {
+  color: var(--cyan);
+  border-bottom-color: var(--cyan);
+}
+
+.briefing-panel {
+  display: none;
+}
+.briefing-panel.active {
+  display: block;
+  animation: codeFadeIn 0.3s ease;
+}
+
+/* Terminal-style preview window */
+.briefing-terminal {
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-surface);
+}
+.briefing-terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1.5rem;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.briefing-terminal-dots {
+  display: flex;
+  gap: 5px;
+}
+.briefing-terminal-dots span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.briefing-terminal-dots span:nth-child(1) { background: #ff5f57; }
+.briefing-terminal-dots span:nth-child(2) { background: #febc2e; }
+.briefing-terminal-dots span:nth-child(3) { background: #28c840; }
+.briefing-terminal-title {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+.briefing-terminal-badge {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  margin-left: auto;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 600;
+  background: rgba(0, 229, 255, 0.1);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+}
+.briefing-terminal-body {
+  padding: 1.8rem 2rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+/* Banner line inside terminal */
+.bt-banner {
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+.bt-banner-label {
+  color: var(--cyan);
+  font-weight: 600;
+}
+
+/* Assembling line */
+.bt-assemble {
+  margin-top: 1rem;
+  color: var(--text-primary);
+}
+.bt-assemble .bt-bullet { color: var(--cyan); }
+.bt-assemble .bt-team-name { color: var(--amber); }
+.bt-assemble .bt-count { color: var(--cyan); }
+
+/* Briefing table inside terminal */
+.bt-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8rem 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+}
+.bt-table th {
+  text-align: left;
+  padding: 0.5rem 0.8rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+.bt-table td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.04);
+  vertical-align: top;
+}
+.bt-table tr:last-child td { border-bottom: none; }
+.bt-table .bt-num { color: var(--text-muted); width: 28px; }
+.bt-table .bt-role { color: var(--text-primary); font-weight: 500; }
+.bt-table .bt-produces { color: var(--cyan); }
+.bt-table .bt-focus { color: var(--text-muted); font-size: 0.68rem; }
+
+/* Spawning line */
+.bt-spawning {
+  margin-top: 0.6rem;
+  color: var(--green);
+  font-weight: 500;
+}
+
+/* Single-agent format */
+.bt-single {
+  margin-top: 1rem;
+}
+.bt-single .bt-bullet { color: var(--cyan); }
+.bt-single .bt-output { color: var(--cyan); }
+.bt-single .bt-focus-line {
+  color: var(--text-muted);
+  padding-left: 1.2rem;
+  font-size: 0.72rem;
+}
+
+/* Annotation */
+.briefing-annotation {
+  margin-top: 1rem;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 229, 255, 0.03);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+.briefing-annotation strong { color: var(--cyan); }
+
+@media (max-width: 900px) {
+  .briefing-terminal-body { padding: 1.2rem 1rem; font-size: 0.7rem; }
+  .bt-table { font-size: 0.65rem; }
+  .bt-table th, .bt-table td { padding: 0.35rem 0.5rem; }
+  .briefing-tab-btn { padding: 0.7rem 1rem; font-size: 0.65rem; }
+}
 </style>
 </head>
 <body>
@@ -2839,6 +3018,240 @@ footer .footer-credit {
         </div>
       </div>
     </div>
+
+    <!-- Team Briefing Showcase -->
+    <div class="briefing-showcase reveal reveal-delay-2">
+      <div class="section-label">User Feedback</div>
+      <h2 class="section-title">Team Briefing</h2>
+      <p class="section-desc">
+        Before agents spawn, you see exactly what's being assembled &mdash; every agent's role,
+        what it produces, and its focus area. No black boxes.
+      </p>
+
+      <div class="briefing-tabs" style="margin-top:2rem;">
+        <button class="briefing-tab-btn active" data-briefing="briefing-research">Research Team</button>
+        <button class="briefing-tab-btn" data-briefing="briefing-mapping">Mapping Team</button>
+        <button class="briefing-tab-btn" data-briefing="briefing-execute">Execution Team</button>
+        <button class="briefing-tab-btn" data-briefing="briefing-planning">Planning Pipeline</button>
+      </div>
+
+      <!-- Research Team -->
+      <div class="briefing-panel active" id="briefing-research">
+        <div class="briefing-terminal">
+          <div class="briefing-terminal-header">
+            <div class="briefing-terminal-dots"><span></span><span></span><span></span></div>
+            <span class="briefing-terminal-title">new-project.md &mdash; research phase</span>
+            <span class="briefing-terminal-badge">Live Output</span>
+          </div>
+          <div class="briefing-terminal-body">
+            <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+            <div class="bt-banner">&nbsp;<span class="bt-banner-label">GRD &#9654; RESEARCHING</span></div>
+            <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+
+            <div class="bt-assemble">
+              <span class="bt-bullet">&#9670;</span> Assembling team: <span class="bt-team-name">grd-project-research</span> &mdash; <span class="bt-count">4</span> agents
+            </div>
+
+            <table class="bt-table">
+              <thead>
+                <tr><th class="bt-num">#</th><th>Role</th><th>Produces</th><th>Focus</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="bt-num">1</td>
+                  <td class="bt-role">Stack Researcher</td>
+                  <td class="bt-produces">STACK.md</td>
+                  <td class="bt-focus">Languages, frameworks, dependencies, versions</td>
+                </tr>
+                <tr>
+                  <td class="bt-num">2</td>
+                  <td class="bt-role">Feature Researcher</td>
+                  <td class="bt-produces">FEATURES.md</td>
+                  <td class="bt-focus">Table stakes vs differentiators, complexity</td>
+                </tr>
+                <tr>
+                  <td class="bt-num">3</td>
+                  <td class="bt-role">Architecture Researcher</td>
+                  <td class="bt-produces">ARCHITECTURE.md</td>
+                  <td class="bt-focus">Component boundaries, data flow, build order</td>
+                </tr>
+                <tr>
+                  <td class="bt-num">4</td>
+                  <td class="bt-role">Pitfalls Researcher</td>
+                  <td class="bt-produces">PITFALLS.md</td>
+                  <td class="bt-focus">Common mistakes, warning signs, prevention</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="bt-spawning">Spawning 4 agents in parallel...</div>
+          </div>
+        </div>
+
+        <div class="briefing-annotation">
+          <strong>What you see:</strong> Before research agents spawn, you get a full breakdown of
+          who's being launched, what each agent writes, and what it's looking for. Then a synthesizer
+          aggregates all findings into a single <code>SUMMARY.md</code>.
+        </div>
+      </div>
+
+      <!-- Mapping Team -->
+      <div class="briefing-panel" id="briefing-mapping">
+        <div class="briefing-terminal">
+          <div class="briefing-terminal-header">
+            <div class="briefing-terminal-dots"><span></span><span></span><span></span></div>
+            <span class="briefing-terminal-title">map-codebase.md &mdash; codebase analysis</span>
+            <span class="briefing-terminal-badge">Live Output</span>
+          </div>
+          <div class="briefing-terminal-body">
+            <div class="bt-assemble">
+              <span class="bt-bullet">&#9670;</span> Assembling team: <span class="bt-team-name">grd-codebase-mapping</span> &mdash; <span class="bt-count">4</span> agents
+            </div>
+
+            <table class="bt-table">
+              <thead>
+                <tr><th class="bt-num">#</th><th>Role</th><th>Produces</th><th>Focus</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="bt-num">1</td>
+                  <td class="bt-role">Tech Mapper</td>
+                  <td class="bt-produces">STACK.md, INTEGRATIONS.md</td>
+                  <td class="bt-focus">Languages, frameworks, external APIs, databases</td>
+                </tr>
+                <tr>
+                  <td class="bt-num">2</td>
+                  <td class="bt-role">Architecture Mapper</td>
+                  <td class="bt-produces">ARCHITECTURE.md, STRUCTURE.md</td>
+                  <td class="bt-focus">System patterns, layers, directory layout</td>
+                </tr>
+                <tr>
+                  <td class="bt-num">3</td>
+                  <td class="bt-role">Quality Mapper</td>
+                  <td class="bt-produces">CONVENTIONS.md, TESTING.md</td>
+                  <td class="bt-focus">Code style, naming patterns, test framework</td>
+                </tr>
+                <tr>
+                  <td class="bt-num">4</td>
+                  <td class="bt-role">Concerns Mapper</td>
+                  <td class="bt-produces">CONCERNS.md</td>
+                  <td class="bt-focus">Technical debt, security issues, fragile areas</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="bt-spawning">Spawning 4 agents in background...</div>
+          </div>
+        </div>
+
+        <div class="briefing-annotation">
+          <strong>Previously invisible:</strong> Codebase mapping had no spawning message at all &mdash;
+          agents launched silently. Now you see all 4 mapper roles, their 7 output documents, and
+          exactly what each one analyzes before work begins.
+        </div>
+      </div>
+
+      <!-- Execution Team -->
+      <div class="briefing-panel" id="briefing-execute">
+        <div class="briefing-terminal">
+          <div class="briefing-terminal-header">
+            <div class="briefing-terminal-dots"><span></span><span></span><span></span></div>
+            <span class="briefing-terminal-title">execute-phase.md &mdash; phase execution</span>
+            <span class="briefing-terminal-badge">Live Output</span>
+          </div>
+          <div class="briefing-terminal-body">
+            <div class="bt-assemble">
+              <span class="bt-bullet">&#9670;</span> Assembling team: <span class="bt-team-name">grd-phase-3-execution</span> &mdash; <span class="bt-count">4</span> executors across <span class="bt-count">2</span> waves
+            </div>
+
+            <div style="margin-top:1.2rem; color: var(--text-muted);">&#9472;&#9472;&#9472;</div>
+            <div style="font-weight:600; color: var(--text-primary); margin: 0.4rem 0;">## Wave 1</div>
+
+            <table class="bt-table">
+              <thead>
+                <tr><th class="bt-num">#</th><th>Plan</th><th>Objective</th><th>Key Files</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="bt-num">1</td>
+                  <td class="bt-role">03-01: Database Schema</td>
+                  <td class="bt-focus">Core tables, migrations, seed data</td>
+                  <td class="bt-produces">schema.prisma, seed.ts</td>
+                </tr>
+                <tr>
+                  <td class="bt-num">2</td>
+                  <td class="bt-role">03-02: Auth System</td>
+                  <td class="bt-focus">JWT auth, session management</td>
+                  <td class="bt-produces">auth.ts, middleware.ts</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div style="color: var(--text-secondary); margin: 0.6rem 0; font-size: 0.72rem; line-height: 1.6;">
+              Foundation layer &mdash; database schema and auth system. Required before API endpoints (Wave 2) can handle authenticated requests.
+            </div>
+
+            <div class="bt-spawning">Spawning 2 executor(s)...</div>
+          </div>
+        </div>
+
+        <div class="briefing-annotation">
+          <strong>Wave-level clarity:</strong> Each wave shows a table of plans with their objectives
+          and key files, plus a summary of why this wave matters and what it enables for subsequent waves.
+          The team creation announcement at the top shows the full scope upfront.
+        </div>
+      </div>
+
+      <!-- Planning Pipeline -->
+      <div class="briefing-panel" id="briefing-planning">
+        <div class="briefing-terminal">
+          <div class="briefing-terminal-header">
+            <div class="briefing-terminal-dots"><span></span><span></span><span></span></div>
+            <span class="briefing-terminal-title">plan-phase.md &mdash; planning pipeline</span>
+            <span class="briefing-terminal-badge">Live Output</span>
+          </div>
+          <div class="briefing-terminal-body">
+            <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+            <div class="bt-banner">&nbsp;<span class="bt-banner-label">GRD &#9654; RESEARCHING PHASE 3</span></div>
+            <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+
+            <div class="bt-single">
+              <span class="bt-bullet">&#9670;</span> Spawning researcher &mdash; produces <span class="bt-output">03-RESEARCH.md</span>
+              <div class="bt-focus-line">Focus: How to implement Phase 3: API Endpoints</div>
+            </div>
+
+            <div style="margin-top:1.5rem;">
+              <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+              <div class="bt-banner">&nbsp;<span class="bt-banner-label">GRD &#9654; PLANNING PHASE 3</span></div>
+              <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+            </div>
+
+            <div class="bt-single">
+              <span class="bt-bullet">&#9670;</span> Spawning planner &mdash; produces PLAN.md files in <span class="bt-output">phases/03-api-endpoints/</span>
+              <div class="bt-focus-line">Focus: Task breakdown, dependencies, wave assignment for Phase 3</div>
+            </div>
+
+            <div style="margin-top:1.5rem;">
+              <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+              <div class="bt-banner">&nbsp;<span class="bt-banner-label">GRD &#9654; VERIFYING PLANS</span></div>
+              <div class="bt-banner">&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;&#9473;</div>
+            </div>
+
+            <div class="bt-single">
+              <span class="bt-bullet">&#9670;</span> Spawning plan checker &mdash; verifies plans achieve Phase 3 goal
+              <div class="bt-focus-line">Focus: Goal-backward analysis, requirement coverage, gap detection</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="briefing-annotation">
+          <strong>Sequential clarity:</strong> Each agent in the planning pipeline now tells you what
+          it produces and what it's focusing on. You see the full researcher &rarr; planner &rarr; checker
+          flow with concrete output paths at every step.
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -3861,6 +4274,17 @@ document.querySelectorAll('.code-tab-btn').forEach(btn => {
     btn.closest('.code-tabs').querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById(tabId).classList.add('active');
+  });
+});
+
+// Briefing tabs
+document.querySelectorAll('.briefing-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const panelId = btn.dataset.briefing;
+    btn.closest('.briefing-showcase').querySelectorAll('.briefing-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.closest('.briefing-showcase').querySelectorAll('.briefing-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
   });
 });
 

@@ -395,13 +395,18 @@ TaskCreate(subject="Research architecture", description="Investigate system arch
 TaskCreate(subject="Research pitfalls", description="Investigate common mistakes and pitfalls for [domain]. Write .planning/research/PITFALLS.md.", activeForm="Researching pitfalls")
 ```
 
-Display spawning indicator:
+Display team briefing:
 ```
-â—† Spawning 4 researchers in parallel (team: grd-project-research)...
-  â†' Stack research
-  â†' Features research
-  â†' Architecture research
-  â†' Pitfalls research
+â—† Assembling team: grd-project-research â€" 4 agents
+
+| # | Role | Produces | Focus |
+|---|------|----------|-------|
+| 1 | Stack Researcher | `.planning/research/STACK.md` | Languages, frameworks, dependencies, versions |
+| 2 | Feature Researcher | `.planning/research/FEATURES.md` | Table stakes vs differentiators, complexity |
+| 3 | Architecture Researcher | `.planning/research/ARCHITECTURE.md` | Component boundaries, data flow, build order |
+| 4 | Pitfalls Researcher | `.planning/research/PITFALLS.md` | Common mistakes, warning signs, prevention |
+
+Spawning 4 agents in parallel...
 ```
 
 Spawn 4 parallel grd-project-researcher agents as team members with rich context:
@@ -592,6 +597,12 @@ TaskList()  # All 4 research tasks should show 'completed'
 After all 4 agents complete, tear down the research team and spawn synthesizer to create SUMMARY.md:
 ```
 TeamDelete(name="grd-project-research")
+```
+
+Display synthesizer indicator:
+```
+â—† Spawning synthesizer â€" produces `.planning/research/SUMMARY.md`
+  Focus: Aggregate findings from all 4 research dimensions
 ```
 
 ```
@@ -786,7 +797,8 @@ Display stage banner:
  GRD â–º CREATING ROADMAP
 â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
-â—† Spawning roadmapper...
+â—† Spawning roadmapper â€" produces `.planning/ROADMAP.md`, `.planning/STATE.md`
+  Focus: Phase breakdown, requirement mapping, success criteria derivation
 ```
 
 Spawn grd-roadmapper agent with context:

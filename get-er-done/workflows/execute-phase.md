@@ -57,6 +57,11 @@ When `parallelization` is false, plans within a wave execute sequentially.
 TeamCreate(name="grd-phase-{phase_number}-execution")
 ```
 
+Display team creation announcement:
+```
+â—† Assembling team: grd-phase-{phase_number}-execution â€" {incomplete_count} executor(s) across {wave_count} wave(s)
+```
+
 This team persists for the entire phase execution. All executor agents join it as members.
 </step>
 
@@ -130,21 +135,25 @@ Execute each wave in sequence. Within a wave: parallel if `PARALLELIZATION=true`
 
 1. **Describe what's being built (BEFORE spawning):**
 
-   Read each plan's `<objective>`. Extract what's being built and why.
+   Read each plan's `<objective>` and `files_modified`. Extract what's being built and why.
 
    ```
    ---
    ## Wave {N}
 
-   **{Plan ID}: {Plan Name}**
-   {2-3 sentences: what this builds, technical approach, why it matters}
+   | # | Plan | Objective | Key Files |
+   |---|------|-----------|-----------|
+   | 1 | {Plan ID}: {Plan Name} | {one-line objective from plan} | {top 2-3 files_modified} |
+   | 2 | {Plan ID}: {Plan Name} | {one-line objective} | {top 2-3 files_modified} |
 
-   Spawning {count} agent(s)...
+   {2-3 sentences: what this wave builds collectively, why it matters, what it enables for subsequent waves}
+
+   Spawning {count} executor(s)...
    ---
    ```
 
    - Bad: "Executing terrain generation plan"
-   - Good: "Procedural terrain generator using Perlin noise â€” creates height maps, biome zones, and collision meshes. Required before vehicle physics can interact with ground."
+   - Good table + summary: Table shows each plan's objective and files, followed by "Procedural terrain generator using Perlin noise â€" creates height maps, biome zones, and collision meshes. Required before vehicle physics can interact with ground."
 
 2. **Spawn executor agents as team members:**
 
