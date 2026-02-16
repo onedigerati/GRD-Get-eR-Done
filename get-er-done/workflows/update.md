@@ -91,7 +91,7 @@ Exit.
 <step name="show_changes_and_confirm">
 **If update available**, fetch and show what's new BEFORE updating:
 
-1. Fetch changelog from GitHub raw URL
+1. Fetch changelog from `https://raw.githubusercontent.com/onedigerati/GRD-Get-eR-Done/master/CHANGELOG.md`
 2. Extract entries between installed and latest versions
 3. Display preview and ask for confirmation:
 
@@ -179,7 +179,7 @@ Format completion message (changelog was already shown in confirmation step):
 
 âš ï¸  Restart Claude Code to pick up the new commands.
 
-[View full changelog](https://github.com/glittercowboy/get-er-done/blob/main/CHANGELOG.md)
+[View full changelog](https://github.com/onedigerati/GRD-Get-eR-Done/blob/master/CHANGELOG.md)
 ```
 </step>
 
