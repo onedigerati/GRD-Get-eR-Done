@@ -692,6 +692,11 @@ section {
   color: var(--green);
   border: 1px solid rgba(105, 240, 174, 0.15);
 }
+.quality-tag.removed {
+  background: rgba(255, 171, 64, 0.08);
+  color: var(--amber);
+  border: 1px solid rgba(255, 171, 64, 0.15);
+}
 .quality-content p {
   font-size: 0.9rem;
   color: var(--text-secondary);
@@ -2414,6 +2419,7 @@ footer .footer-credit {
     <div class="nav-links">
       <a href="#transform">Transformation</a>
       <a href="#compare">GSD vs GRD</a>
+      <a href="#modernization">What's New</a>
       <a href="#quality">Quality</a>
       <a href="#architecture">Architecture</a>
       <a href="#teams">Agent Teams</a>
@@ -2440,9 +2446,10 @@ footer .footer-credit {
     <h1><span class="accent">GRD</span></h1>
     <div class="hero-subtitle">Get eR Done</div>
     <p class="hero-desc">
-      A meta-prompting, context engineering and spec-driven development system
-      for Claude Code. Rebranded and enhanced with persistent Agent Teams
-      for coordinated multi-agent orchestration.
+      Meta-prompting, context engineering, and spec-driven development for Claude Code.
+      Enhanced with persistent Agent Teams and modernized to leverage Claude Code's native
+      capabilities &mdash; auto-memory, native todo tracking, native model configuration,
+      and automatic deferred work tracking across context windows.
     </p>
     <div class="hero-terminal">
       <span class="prompt">$</span> <span class="cmd">/grd:new-project</span>
@@ -2499,7 +2506,7 @@ footer .footer-credit {
         <div class="stat-label">Agent Types</div>
       </div>
       <div class="stat-cell">
-        <div class="stat-value">27</div>
+        <div class="stat-value">24</div>
         <div class="stat-label">Commands</div>
       </div>
       <div class="stat-cell">
@@ -2669,6 +2676,119 @@ footer .footer-credit {
   </div>
 </section>
 
+<!-- MODERNIZATION -->
+<section class="quality-section" id="modernization">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-label">What's New</div>
+      <h2 class="section-title">Native-first modernization</h2>
+      <p class="section-desc">
+        GRD now leverages Claude Code's native capabilities instead of reimplementing them.
+        Less custom code. Less token overhead. Same power &mdash; with the platform doing the heavy lifting.
+      </p>
+    </div>
+
+    <div class="quality-grid">
+
+      <div class="quality-card reveal reveal-delay-1">
+        <div class="quality-icon">&#9881;</div>
+        <div class="quality-content">
+          <h3>Native model configuration <span class="quality-tag improved">SIMPLIFIED</span></h3>
+          <p>
+            <code>/grd:set-profile</code> removed. Each agent's <code>.md</code> file now has a
+            <code>model:</code> frontmatter field that Claude Code reads natively. Edit the field
+            directly &mdash; no custom profile resolution needed.
+          </p>
+          <div class="quality-evidence">
+            <strong>Before:</strong> Custom MODEL_PROFILES table, resolve-model command, /grd:set-profile workflow<br>
+            <strong>After:</strong> <code>model: claude-sonnet-4-5</code> in agent frontmatter. Edit directly. Done.
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-1">
+        <div class="quality-icon">&#128203;</div>
+        <div class="quality-content">
+          <h3>Native todo tracking <span class="quality-tag improved">INTEGRATED</span></h3>
+          <p>
+            <code>/grd:add-todo</code> and <code>/grd:check-todos</code> removed. GRD workflows
+            now use Claude Code's native <code>TodoRead</code>/<code>TodoWrite</code> tools to
+            track deferred decisions, discovered improvements, and cross-phase items automatically.
+          </p>
+          <div class="quality-evidence">
+            <strong>Before:</strong> Custom todo system with file-based storage in <code>.planning/todos/</code><br>
+            <strong>After:</strong> Executor captures deferred items via <code>TodoWrite</code>. Pause, resume, progress, and transitions surface them via <code>TodoRead</code>.
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-2">
+        <div class="quality-icon">&#128161;</div>
+        <div class="quality-content">
+          <h3>Auto-memory replaces manual tracking <span class="quality-tag improved">SIMPLIFIED</span></h3>
+          <p>
+            Four state commands removed (<code>add-decision</code>, <code>add-blocker</code>,
+            <code>resolve-blocker</code>, <code>record-session</code>). Claude Code's auto-memory
+            tracks decisions, blockers, and session context natively across sessions.
+          </p>
+          <div class="quality-evidence">
+            <strong>Before:</strong> Manual <code>state add-decision</code> calls after every important decision<br>
+            <strong>After:</strong> Auto-memory persists decisions, blockers, and session context automatically
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-2">
+        <div class="quality-icon">&#9654;</div>
+        <div class="quality-content">
+          <h3>Simplified session management <span class="quality-tag improved">SIMPLIFIED</span></h3>
+          <p>
+            Pause/resume workflows reduced from ~430 lines to ~60 lines. No more
+            <code>.continue-here.md</code> handoff files. Auto-memory preserves full context
+            between sessions. Pending deferred items surface automatically on pause and resume.
+          </p>
+          <div class="quality-evidence">
+            <strong>Before:</strong> 123-line pause workflow generating detailed handoff documents<br>
+            <strong>After:</strong> Thin wrapper saves position to STATE.md, surfaces pending items. Auto-memory handles the rest.
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-3">
+        <div class="quality-icon">&#128196;</div>
+        <div class="quality-content">
+          <h3>Leaner state tracking <span class="quality-tag improved">SIMPLIFIED</span></h3>
+          <p>
+            STATE.md template slimmed from ~100 to ~40 lines. Removed Decisions, Blockers, and
+            Pending Todos sections &mdash; all now handled by auto-memory.
+          </p>
+          <div class="quality-evidence">
+            <strong>Before:</strong> ~100-line template with manual sections for decisions, blockers, todos, multi-field session info<br>
+            <strong>After:</strong> ~40-line template: Project Reference, Current Position, Performance Metrics, single timestamp
+          </div>
+        </div>
+      </div>
+
+      <div class="quality-card reveal reveal-delay-3">
+        <div class="quality-icon">&#128260;</div>
+        <div class="quality-content">
+          <h3>Deferred work tracking <span class="quality-tag grd-only">NEW</span></h3>
+          <p>
+            The executor captures deferred decisions, out-of-scope improvements, and cross-phase
+            dependencies as native todos. Other workflows surface them at the right moments &mdash;
+            on pause, resume, progress checks, and phase transitions.
+          </p>
+          <div class="quality-evidence">
+            <strong>How:</strong> <code>TodoWrite</code> in executor. <code>TodoRead</code> in pause, resume, progress, and transition workflows.<br>
+            <strong>Benefit:</strong> Deferred items survive context window boundaries with zero manual tracking.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- QUALITY FINDINGS -->
 <section class="quality-section" id="quality">
   <div class="container">
@@ -2708,7 +2828,7 @@ footer .footer-credit {
             GSD agents update STATE.md by reading the file with <code>cat</code>, parsing with <code>grep</code>, and rewriting with manual string operations. If the markdown format deviates (extra whitespace, missing header, reordered sections), the regex can fail silently, producing corrupted state.
           </p>
           <p>
-            GRD agents use <code>grd-tools.js state</code> commands (advance-plan, update-progress, record-metric, add-decision, record-session) that parse STATE.md with a structured parser and write back atomically. These operations have test coverage and handle edge cases.
+            GRD agents use <code>grd-tools.js state</code> commands (advance-plan, update-progress, record-metric) that parse STATE.md with a structured parser and write back atomically. These operations have test coverage and handle edge cases.
           </p>
           <div class="quality-evidence">
             <strong>Source:</strong> gsd-executor uses manual grep/sed STATE.md parsing.
@@ -2817,7 +2937,7 @@ footer .footer-credit {
         <div class="arch-layer-header">
           <div class="arch-layer-icon">/</div>
           <div class="arch-layer-name">Commands</div>
-          <div class="arch-layer-count">27 slash commands</div>
+          <div class="arch-layer-count">24 slash commands</div>
         </div>
         <div class="arch-layer-items">
           <span class="arch-tag">/grd:new-project</span>
@@ -2828,7 +2948,7 @@ footer .footer-credit {
           <span class="arch-tag">/grd:progress</span>
           <span class="arch-tag">/grd:map-codebase</span>
           <span class="arch-tag">/grd:discuss-phase</span>
-          <span class="arch-tag">+19 more</span>
+          <span class="arch-tag">+16 more</span>
         </div>
       </div>
 
@@ -2888,13 +3008,12 @@ footer .footer-credit {
           <span class="arch-tag">grd-tools.js</span>
           <span class="arch-tag">state load</span>
           <span class="arch-tag">state update</span>
-          <span class="arch-tag">resolve-model</span>
           <span class="arch-tag">find-phase</span>
           <span class="arch-tag">commit</span>
           <span class="arch-tag">phase add</span>
           <span class="arch-tag">verify-summary</span>
           <span class="arch-tag">validate</span>
-          <span class="arch-tag">+11 more</span>
+          <span class="arch-tag">+10 more</span>
         </div>
       </div>
     </div>
@@ -3646,7 +3765,7 @@ Create tasks on the team board for each incomplete plan:
   <div class="container">
     <div class="reveal">
       <div class="section-label">Command Reference</div>
-      <h2 class="section-title">27 slash commands</h2>
+      <h2 class="section-title">24 slash commands</h2>
       <p class="section-desc">
         Every command available in GRD, organized by category.
         Each command invokes a workflow that orchestrates specialized agents.
@@ -3749,11 +3868,11 @@ Create tasks on the team board for each incomplete plan:
         <div class="cmd-list">
           <div class="cmd-item">
             <span class="cmd-name">/grd:pause-work</span>
-            <span class="cmd-desc">Create context handoff</span>
+            <span class="cmd-desc">Save position to STATE.md</span>
           </div>
           <div class="cmd-item">
             <span class="cmd-name">/grd:resume-work</span>
-            <span class="cmd-desc">Restore previous session</span>
+            <span class="cmd-desc">Show position and next steps</span>
           </div>
           <div class="cmd-item">
             <span class="cmd-name">/grd:progress</span>
@@ -3767,24 +3886,12 @@ Create tasks on the team board for each incomplete plan:
         <div class="cmd-category-header">
           <div class="cmd-category-dot"></div>
           <span class="cmd-category-name">Utilities</span>
-          <span class="cmd-category-count">11 commands</span>
+          <span class="cmd-category-count">8 commands</span>
         </div>
         <div class="cmd-list">
           <div class="cmd-item">
             <span class="cmd-name">/grd:settings</span>
-            <span class="cmd-desc">Configure workflow toggles</span>
-          </div>
-          <div class="cmd-item">
-            <span class="cmd-name">/grd:set-profile</span>
-            <span class="cmd-desc">Switch model profile</span>
-          </div>
-          <div class="cmd-item">
-            <span class="cmd-name">/grd:add-todo</span>
-            <span class="cmd-desc">Capture idea as todo</span>
-          </div>
-          <div class="cmd-item">
-            <span class="cmd-name">/grd:check-todos</span>
-            <span class="cmd-desc">List pending todos</span>
+            <span class="cmd-desc">Configure workflow agents</span>
           </div>
           <div class="cmd-item">
             <span class="cmd-name">/grd:debug</span>
@@ -3811,8 +3918,8 @@ Create tasks on the team board for each incomplete plan:
             <span class="cmd-desc">Update to latest version</span>
           </div>
           <div class="cmd-item">
-            <span class="cmd-name">/grd:whats-new</span>
-            <span class="cmd-desc">View changelog</span>
+            <span class="cmd-name">/grd:join-discord</span>
+            <span class="cmd-desc">Join the GRD community</span>
           </div>
         </div>
       </div>
@@ -3842,7 +3949,7 @@ Create tasks on the team board for each incomplete plan:
         <div class="stat-mega-label">AI Agents</div>
       </div>
       <div class="stat-mega-card reveal reveal-delay-4">
-        <div class="stat-mega-value">27</div>
+        <div class="stat-mega-value">21</div>
         <div class="stat-mega-label">Commands</div>
       </div>
       <div class="stat-mega-card reveal reveal-delay-1">

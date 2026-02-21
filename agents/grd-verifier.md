@@ -2,6 +2,7 @@
 name: grd-verifier
 description: Verifies phase goal achievement through goal-backward analysis. Checks codebase delivers what phase promised, not just that tasks completed. Creates VERIFICATION.md report.
 tools: Read, Bash, Grep, Glob
+model: claude-sonnet-4-5
 color: green
 ---
 

@@ -1,6 +1,6 @@
 {
   "name": "get-er-done-cc",
-  "version": "1.19.2",
+  "version": "1.20.0",
   "description": "GRD (Get eR Done) - A meta-prompting, context engineering and spec-driven development system for Claude Code, OpenCode and Gemini by TÂCHES.",
   "bin": {
     "get-er-done-cc": "bin/install.js"

@@ -1,7 +1,8 @@
 ---
 name: grd-executor
 description: Executes GRD plans with atomic commits, deviation handling, checkpoint protocols, and state management. Spawned by execute-phase orchestrator or execute-plan command.
-tools: Read, Write, Edit, Bash, Grep, Glob
+tools: Read, Write, Edit, Bash, Grep, Glob, TodoRead, TodoWrite
+model: claude-sonnet-4-5
 color: yellow
 ---
 
@@ -24,7 +25,7 @@ INIT=$(node ~/.claude/get-er-done/bin/grd-tools.js init execute-phase "${PHASE}"
 
 Extract from init JSON: `executor_model`, `commit_docs`, `phase_dir`, `plans`, `incomplete_plans`.
 
-Also read STATE.md for position, decisions, blockers:
+Also read STATE.md for current position:
 ```bash
 cat .planning/STATE.md 2>/dev/null
 ```
@@ -123,6 +124,8 @@ No user permission needed for Rules 1-3.
 
 **Action:** STOP → return checkpoint with: what found, proposed change, why needed, impact, alternatives. **User decision required.**
 
+**If user chooses "defer":** Use TodoWrite to capture the deferred decision with priority "high". Include: what was found, the proposed change, why it matters, and which task/file it relates to. This ensures deferred architectural decisions survive context window boundaries.
+
 ---
 
 **RULE PRIORITY:**
@@ -138,6 +141,16 @@ No user permission needed for Rules 1-3.
 
 **When in doubt:** "Does this affect correctness, security, or ability to complete task?" YES → Rules 1-3. MAYBE → Rule 4.
 </deviation_rules>
+
+<deferred_work>
+When work is deferred, discovered, or needs follow-up beyond the current plan:
+
+1. **Deferred decisions (Rule 4 "defer"):** TodoWrite with priority "high" — what was found, proposed change, why it matters
+2. **Out-of-scope improvements noticed:** TodoWrite with priority "medium" — describe the improvement and which file/area
+3. **Cross-phase dependencies discovered:** TodoWrite with priority "high" — what the next phase needs to account for
+
+Each todo must be self-contained — a future agent in a fresh context window should understand it without additional context.
+</deferred_work>
 
 <authentication_gates>
 **Auth errors during `type="auto"` execution are gates, not failures.**
@@ -302,6 +315,8 @@ After all tasks complete, create `{phase}-{plan}-SUMMARY.md` at `.planning/phase
 Or: "None - plan executed exactly as written."
 
 **Auth gates section** (if any occurred): Document which task, what was needed, outcome.
+
+**Deferred items:** If any TodoWrite calls were made during execution, add a "## Deferred Items" section listing each with its description and priority. If none: omit the section.
 </summary_creation>
 
 <self_check>
@@ -336,31 +351,12 @@ node ~/.claude/get-er-done/bin/grd-tools.js state update-progress
 node ~/.claude/get-er-done/bin/grd-tools.js state record-metric \
   --phase "${PHASE}" --plan "${PLAN}" --duration "${DURATION}" \
   --tasks "${TASK_COUNT}" --files "${FILE_COUNT}"
-
-# Add decisions (extract from SUMMARY.md key-decisions)
-for decision in "${DECISIONS[@]}"; do
-  node ~/.claude/get-er-done/bin/grd-tools.js state add-decision \
-    --phase "${PHASE}" --summary "${decision}"
-done
-
-# Update session info
-node ~/.claude/get-er-done/bin/grd-tools.js state record-session \
-  --stopped-at "Completed ${PHASE}-${PLAN}-PLAN.md"
 ```
 
 **State command behaviors:**
 - `state advance-plan`: Increments Current Plan, detects last-plan edge case, sets status
 - `state update-progress`: Recalculates progress bar from SUMMARY.md counts on disk
 - `state record-metric`: Appends to Performance Metrics table
-- `state add-decision`: Adds to Decisions section, removes placeholders
-- `state record-session`: Updates Last session timestamp and Stopped At fields
-
-**Extract decisions from SUMMARY.md:** Parse key-decisions from frontmatter or "Decisions Made" section → add each via `state add-decision`.
-
-**For blockers found during execution:**
-```bash
-node ~/.claude/get-er-done/bin/grd-tools.js state add-blocker "Blocker description"
-```
 </state_updates>
 
 <final_commit>
@@ -397,7 +393,7 @@ Plan execution complete when:
 - [ ] All deviations documented
 - [ ] Authentication gates handled and documented
 - [ ] SUMMARY.md created with substantive content
-- [ ] STATE.md updated (position, decisions, issues, session)
+- [ ] STATE.md updated (position, progress, metrics)
 - [ ] Final metadata commit made
 - [ ] Completion format returned to orchestrator
 </success_criteria>

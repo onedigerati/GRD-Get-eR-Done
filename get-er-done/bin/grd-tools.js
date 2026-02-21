@@ -13,13 +13,11 @@
  *   state update <field> <value>       Update a STATE.md field
  *   state get [section]                Get STATE.md content or section
  *   state patch --field val ...        Batch update STATE.md fields
- *   resolve-model <agent-type>         Get model for agent based on profile
  *   find-phase <phase>                 Find phase directory by number
  *   commit <message> [--files f1 f2]   Commit planning docs
  *   verify-summary <path>              Verify a SUMMARY.md file
  *   generate-slug <text>               Convert text to URL-safe slug
  *   current-timestamp [format]         Get timestamp (full|date|filename)
- *   list-todos [area]                  Count and enumerate pending todos
  *   verify-path-exists <path>          Check file/directory existence
  *   config-ensure-section              Initialize .planning/config.json
  *   history-digest                     Aggregate all SUMMARY.md data
@@ -49,9 +47,6 @@
  *
  * Progress:
  *   progress [json|table|bar]          Render progress in various formats
- *
- * Todos:
- *   todo complete <filename>           Move todo from pending to completed
  *
  * Scaffolding:
  *   scaffold context --phase <N>       Create CONTEXT.md template
@@ -93,13 +88,6 @@
  *     --plan M --duration Xmin
  *     [--tasks N] [--files N]
  *   state update-progress              Recalculate progress bar
- *   state add-decision --summary "..."  Add decision to STATE.md
- *     [--phase N] [--rationale "..."]
- *   state add-blocker --text "..."     Add blocker
- *   state resolve-blocker --text "..." Remove blocker
- *   state record-session               Update session continuity
- *     --stopped-at "..."
- *     [--resume-file path]
  *
  * Compound Commands (workflow-specific initialization):
  *   init execute-phase <phase>         All context for execute-phase workflow
@@ -110,7 +98,6 @@
  *   init resume                        All context for resume-project workflow
  *   init verify-work <phase>           All context for verify-work workflow
  *   init phase-op <phase>              Generic phase operation context
- *   init todos [area]                  All context for todo workflows
  *   init milestone-op                  All context for milestone operations
  *   init map-codebase                  All context for map-codebase workflow
  *   init progress                      All context for progress workflow
@@ -120,23 +107,7 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// â”€â”€â”€ Model Profile Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-const MODEL_PROFILES = {
-  'grd-planner':              { quality: 'opus', balanced: 'opus',   budget: 'sonnet' },
-  'grd-roadmapper':           { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'grd-executor':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'grd-phase-researcher':     { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'grd-project-researcher':   { quality: 'opus', balanced: 'sonnet', budget: 'haiku' },
-  'grd-research-synthesizer': { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'grd-debugger':             { quality: 'opus', balanced: 'sonnet', budget: 'sonnet' },
-  'grd-codebase-mapper':      { quality: 'sonnet', balanced: 'haiku', budget: 'haiku' },
-  'grd-verifier':             { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'grd-plan-checker':         { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-  'grd-integration-checker':  { quality: 'sonnet', balanced: 'sonnet', budget: 'haiku' },
-};
-
-// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function parseIncludeFlag(args) {
   const includeIndex = args.indexOf('--include');
@@ -157,7 +128,6 @@ function safeReadFile(filePath) {
 function loadConfig(cwd) {
   const configPath = path.join(cwd, '.planning', 'config.json');
   const defaults = {
-    model_profile: 'balanced',
     commit_docs: true,
     search_gitignored: false,
     branching_strategy: 'none',
@@ -190,7 +160,6 @@ function loadConfig(cwd) {
     })();
 
     return {
-      model_profile: get('model_profile') ?? defaults.model_profile,
       commit_docs: get('commit_docs', { section: 'planning', field: 'commit_docs' }) ?? defaults.commit_docs,
       search_gitignored: get('search_gitignored', { section: 'planning', field: 'search_gitignored' }) ?? defaults.search_gitignored,
       branching_strategy: get('branching_strategy', { section: 'git', field: 'branching_strategy' }) ?? defaults.branching_strategy,
@@ -513,43 +482,6 @@ function cmdCurrentTimestamp(format, raw) {
   output({ timestamp: result }, raw, result);
 }
 
-function cmdListTodos(cwd, area, raw) {
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-
-  let count = 0;
-  const todos = [];
-
-  try {
-    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith('.md'));
-
-    for (const file of files) {
-      try {
-        const content = fs.readFileSync(path.join(pendingDir, file), 'utf-8');
-        const createdMatch = content.match(/^created:\s*(.+)$/m);
-        const titleMatch = content.match(/^title:\s*(.+)$/m);
-        const areaMatch = content.match(/^area:\s*(.+)$/m);
-
-        const todoArea = areaMatch ? areaMatch[1].trim() : 'general';
-
-        // Apply area filter if specified
-        if (area && todoArea !== area) continue;
-
-        count++;
-        todos.push({
-          file,
-          created: createdMatch ? createdMatch[1].trim() : 'unknown',
-          title: titleMatch ? titleMatch[1].trim() : 'Untitled',
-          area: todoArea,
-          path: path.join('.planning', 'todos', 'pending', file),
-        });
-      } catch {}
-    }
-  } catch {}
-
-  const result = { count, todos };
-  output(result, raw, count.toString());
-}
-
 function cmdVerifyPathExists(cwd, targetPath, raw) {
   if (!targetPath) {
     error('path required for verification');
@@ -595,7 +527,6 @@ function cmdConfigEnsureSection(cwd, raw) {
 
   // Create default config
   const defaults = {
-    model_profile: 'balanced',
     commit_docs: true,
     search_gitignored: false,
     branching_strategy: 'none',
@@ -973,7 +904,6 @@ function cmdStateLoad(cwd, raw) {
   if (raw) {
     const c = config;
     const lines = [
-      `model_profile=${c.model_profile}`,
       `commit_docs=${c.commit_docs}`,
       `branching_strategy=${c.branching_strategy}`,
       `phase_branch_template=${c.phase_branch_template}`,
@@ -1194,143 +1124,6 @@ function cmdStateUpdateProgress(cwd, raw) {
   } else {
     output({ updated: false, reason: 'Progress field not found in STATE.md' }, raw, 'false');
   }
-}
-
-function cmdStateAddDecision(cwd, options, raw) {
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
-
-  const { phase, summary, rationale } = options;
-  if (!summary) { output({ error: 'summary required' }, raw); return; }
-
-  let content = fs.readFileSync(statePath, 'utf-8');
-  const entry = `- [Phase ${phase || '?'}]: ${summary}${rationale ? ` â€” ${rationale}` : ''}`;
-
-  // Find Decisions section (various heading patterns)
-  const sectionPattern = /(###?\s*(?:Decisions|Decisions Made|Accumulated.*Decisions)\s*\n)([\s\S]*?)(?=\n###?|\n##[^#]|$)/i;
-  const match = content.match(sectionPattern);
-
-  if (match) {
-    let sectionBody = match[2];
-    // Remove placeholders
-    sectionBody = sectionBody.replace(/None yet\.?\s*\n?/gi, '').replace(/No decisions yet\.?\s*\n?/gi, '');
-    sectionBody = sectionBody.trimEnd() + '\n' + entry + '\n';
-    content = content.replace(sectionPattern, `${match[1]}${sectionBody}`);
-    fs.writeFileSync(statePath, content, 'utf-8');
-    output({ added: true, decision: entry }, raw, 'true');
-  } else {
-    output({ added: false, reason: 'Decisions section not found in STATE.md' }, raw, 'false');
-  }
-}
-
-function cmdStateAddBlocker(cwd, text, raw) {
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
-  if (!text) { output({ error: 'text required' }, raw); return; }
-
-  let content = fs.readFileSync(statePath, 'utf-8');
-  const entry = `- ${text}`;
-
-  const sectionPattern = /(###?\s*(?:Blockers|Blockers\/Concerns|Concerns)\s*\n)([\s\S]*?)(?=\n###?|\n##[^#]|$)/i;
-  const match = content.match(sectionPattern);
-
-  if (match) {
-    let sectionBody = match[2];
-    sectionBody = sectionBody.replace(/None\.?\s*\n?/gi, '').replace(/None yet\.?\s*\n?/gi, '');
-    sectionBody = sectionBody.trimEnd() + '\n' + entry + '\n';
-    content = content.replace(sectionPattern, `${match[1]}${sectionBody}`);
-    fs.writeFileSync(statePath, content, 'utf-8');
-    output({ added: true, blocker: text }, raw, 'true');
-  } else {
-    output({ added: false, reason: 'Blockers section not found in STATE.md' }, raw, 'false');
-  }
-}
-
-function cmdStateResolveBlocker(cwd, text, raw) {
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
-  if (!text) { output({ error: 'text required' }, raw); return; }
-
-  let content = fs.readFileSync(statePath, 'utf-8');
-
-  const sectionPattern = /(###?\s*(?:Blockers|Blockers\/Concerns|Concerns)\s*\n)([\s\S]*?)(?=\n###?|\n##[^#]|$)/i;
-  const match = content.match(sectionPattern);
-
-  if (match) {
-    const sectionBody = match[2];
-    const lines = sectionBody.split('\n');
-    const filtered = lines.filter(line => {
-      if (!line.startsWith('- ')) return true;
-      return !line.toLowerCase().includes(text.toLowerCase());
-    });
-
-    let newBody = filtered.join('\n');
-    // If section is now empty, add placeholder
-    if (!newBody.trim() || !newBody.includes('- ')) {
-      newBody = 'None\n';
-    }
-
-    content = content.replace(sectionPattern, `${match[1]}${newBody}`);
-    fs.writeFileSync(statePath, content, 'utf-8');
-    output({ resolved: true, blocker: text }, raw, 'true');
-  } else {
-    output({ resolved: false, reason: 'Blockers section not found in STATE.md' }, raw, 'false');
-  }
-}
-
-function cmdStateRecordSession(cwd, options, raw) {
-  const statePath = path.join(cwd, '.planning', 'STATE.md');
-  if (!fs.existsSync(statePath)) { output({ error: 'STATE.md not found' }, raw); return; }
-
-  let content = fs.readFileSync(statePath, 'utf-8');
-  const now = new Date().toISOString();
-  const updated = [];
-
-  // Update Last session / Last Date
-  let result = stateReplaceField(content, 'Last session', now);
-  if (result) { content = result; updated.push('Last session'); }
-  result = stateReplaceField(content, 'Last Date', now);
-  if (result) { content = result; updated.push('Last Date'); }
-
-  // Update Stopped at
-  if (options.stopped_at) {
-    result = stateReplaceField(content, 'Stopped At', options.stopped_at);
-    if (!result) result = stateReplaceField(content, 'Stopped at', options.stopped_at);
-    if (result) { content = result; updated.push('Stopped At'); }
-  }
-
-  // Update Resume file
-  const resumeFile = options.resume_file || 'None';
-  result = stateReplaceField(content, 'Resume File', resumeFile);
-  if (!result) result = stateReplaceField(content, 'Resume file', resumeFile);
-  if (result) { content = result; updated.push('Resume File'); }
-
-  if (updated.length > 0) {
-    fs.writeFileSync(statePath, content, 'utf-8');
-    output({ recorded: true, updated }, raw, 'true');
-  } else {
-    output({ recorded: false, reason: 'No session fields found in STATE.md' }, raw, 'false');
-  }
-}
-
-function cmdResolveModel(cwd, agentType, raw) {
-  if (!agentType) {
-    error('agent-type required');
-  }
-
-  const config = loadConfig(cwd);
-  const profile = config.model_profile || 'balanced';
-
-  const agentModels = MODEL_PROFILES[agentType];
-  if (!agentModels) {
-    const result = { model: 'sonnet', profile, unknown_agent: true };
-    output(result, raw, 'sonnet');
-    return;
-  }
-
-  const model = agentModels[profile] || agentModels['balanced'] || 'sonnet';
-  const result = { model, profile };
-  output(result, raw, model);
 }
 
 function cmdFindPhase(cwd, phase, raw) {
@@ -3383,36 +3176,7 @@ function cmdProgressRender(cwd, format, raw) {
   }
 }
 
-// â”€â”€â”€ Todo Complete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-function cmdTodoComplete(cwd, filename, raw) {
-  if (!filename) {
-    error('filename required for todo complete');
-  }
-
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-  const completedDir = path.join(cwd, '.planning', 'todos', 'completed');
-  const sourcePath = path.join(pendingDir, filename);
-
-  if (!fs.existsSync(sourcePath)) {
-    error(`Todo not found: ${filename}`);
-  }
-
-  // Ensure completed directory exists
-  fs.mkdirSync(completedDir, { recursive: true });
-
-  // Read, add completion timestamp, move
-  let content = fs.readFileSync(sourcePath, 'utf-8');
-  const today = new Date().toISOString().split('T')[0];
-  content = `completed: ${today}\n` + content;
-
-  fs.writeFileSync(path.join(completedDir, filename), content, 'utf-8');
-  fs.unlinkSync(sourcePath);
-
-  output({ completed: true, file: filename, date: today }, raw, 'completed');
-}
-
-// â”€â”€â”€ Scaffold â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// â"€â"€â"€ Scaffold â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function cmdScaffold(cwd, type, options, raw) {
   const { phase, name } = options;
@@ -3473,14 +3237,6 @@ function cmdScaffold(cwd, type, options, raw) {
 }
 
 // â”€â”€â”€ Compound Commands â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-function resolveModelInternal(cwd, agentType) {
-  const config = loadConfig(cwd);
-  const profile = config.model_profile || 'balanced';
-  const agentModels = MODEL_PROFILES[agentType];
-  if (!agentModels) return 'sonnet';
-  return agentModels[profile] || agentModels['balanced'] || 'sonnet';
-}
 
 function findPhaseInternal(cwd, phase) {
   if (!phase) return null;
@@ -3572,10 +3328,6 @@ function cmdInitExecutePhase(cwd, phase, includes, raw) {
   const milestone = getMilestoneInfo(cwd);
 
   const result = {
-    // Models
-    executor_model: resolveModelInternal(cwd, 'grd-executor'),
-    verifier_model: resolveModelInternal(cwd, 'grd-verifier'),
-
     // Config flags
     commit_docs: config.commit_docs,
     parallelization: config.parallelization,
@@ -3643,11 +3395,6 @@ function cmdInitPlanPhase(cwd, phase, includes, raw) {
   const phaseInfo = findPhaseInternal(cwd, phase);
 
   const result = {
-    // Models
-    researcher_model: resolveModelInternal(cwd, 'grd-phase-researcher'),
-    planner_model: resolveModelInternal(cwd, 'grd-planner'),
-    checker_model: resolveModelInternal(cwd, 'grd-plan-checker'),
-
     // Workflow flags
     research_enabled: config.research,
     plan_checker_enabled: config.plan_checker,
@@ -3757,11 +3504,6 @@ function cmdInitNewProject(cwd, raw) {
                    pathExistsInternal(cwd, 'Package.swift');
 
   const result = {
-    // Models
-    researcher_model: resolveModelInternal(cwd, 'grd-project-researcher'),
-    synthesizer_model: resolveModelInternal(cwd, 'grd-research-synthesizer'),
-    roadmapper_model: resolveModelInternal(cwd, 'grd-roadmapper'),
-
     // Config
     commit_docs: config.commit_docs,
 
@@ -3791,11 +3533,6 @@ function cmdInitNewMilestone(cwd, raw) {
   const milestone = getMilestoneInfo(cwd);
 
   const result = {
-    // Models
-    researcher_model: resolveModelInternal(cwd, 'grd-project-researcher'),
-    synthesizer_model: resolveModelInternal(cwd, 'grd-research-synthesizer'),
-    roadmapper_model: resolveModelInternal(cwd, 'grd-roadmapper'),
-
     // Config
     commit_docs: config.commit_docs,
     research_enabled: config.research,
@@ -3832,10 +3569,6 @@ function cmdInitQuick(cwd, description, raw) {
   } catch {}
 
   const result = {
-    // Models
-    planner_model: resolveModelInternal(cwd, 'grd-planner'),
-    executor_model: resolveModelInternal(cwd, 'grd-executor'),
-
     // Config
     commit_docs: config.commit_docs,
 
@@ -3896,10 +3629,6 @@ function cmdInitVerifyWork(cwd, phase, raw) {
   const phaseInfo = findPhaseInternal(cwd, phase);
 
   const result = {
-    // Models
-    planner_model: resolveModelInternal(cwd, 'grd-planner'),
-    checker_model: resolveModelInternal(cwd, 'grd-plan-checker'),
-
     // Config
     commit_docs: config.commit_docs,
 
@@ -3943,65 +3672,6 @@ function cmdInitPhaseOp(cwd, phase, raw) {
     // File existence
     roadmap_exists: pathExistsInternal(cwd, '.planning/ROADMAP.md'),
     planning_exists: pathExistsInternal(cwd, '.planning'),
-  };
-
-  output(result, raw);
-}
-
-function cmdInitTodos(cwd, area, raw) {
-  const config = loadConfig(cwd);
-  const now = new Date();
-
-  // List todos (reuse existing logic)
-  const pendingDir = path.join(cwd, '.planning', 'todos', 'pending');
-  let count = 0;
-  const todos = [];
-
-  try {
-    const files = fs.readdirSync(pendingDir).filter(f => f.endsWith('.md'));
-    for (const file of files) {
-      try {
-        const content = fs.readFileSync(path.join(pendingDir, file), 'utf-8');
-        const createdMatch = content.match(/^created:\s*(.+)$/m);
-        const titleMatch = content.match(/^title:\s*(.+)$/m);
-        const areaMatch = content.match(/^area:\s*(.+)$/m);
-        const todoArea = areaMatch ? areaMatch[1].trim() : 'general';
-
-        if (area && todoArea !== area) continue;
-
-        count++;
-        todos.push({
-          file,
-          created: createdMatch ? createdMatch[1].trim() : 'unknown',
-          title: titleMatch ? titleMatch[1].trim() : 'Untitled',
-          area: todoArea,
-          path: path.join('.planning', 'todos', 'pending', file),
-        });
-      } catch {}
-    }
-  } catch {}
-
-  const result = {
-    // Config
-    commit_docs: config.commit_docs,
-
-    // Timestamps
-    date: now.toISOString().split('T')[0],
-    timestamp: now.toISOString(),
-
-    // Todo inventory
-    todo_count: count,
-    todos,
-    area_filter: area || null,
-
-    // Paths
-    pending_dir: '.planning/todos/pending',
-    completed_dir: '.planning/todos/completed',
-
-    // File existence
-    planning_exists: pathExistsInternal(cwd, '.planning'),
-    todos_dir_exists: pathExistsInternal(cwd, '.planning/todos'),
-    pending_dir_exists: pathExistsInternal(cwd, '.planning/todos/pending'),
   };
 
   output(result, raw);
@@ -4079,9 +3749,6 @@ function cmdInitMapCodebase(cwd, raw) {
   } catch {}
 
   const result = {
-    // Models
-    mapper_model: resolveModelInternal(cwd, 'grd-codebase-mapper'),
-
     // Config
     commit_docs: config.commit_docs,
     search_gitignored: config.search_gitignored,
@@ -4163,10 +3830,6 @@ function cmdInitProgress(cwd, includes, raw) {
   } catch {}
 
   const result = {
-    // Models
-    executor_model: resolveModelInternal(cwd, 'grd-executor'),
-    planner_model: resolveModelInternal(cwd, 'grd-planner'),
-
     // Config
     commit_docs: config.commit_docs,
 
@@ -4221,7 +3884,7 @@ async function main() {
   const cwd = process.cwd();
 
   if (!command) {
-    error('Usage: grd-tools <command> [args] [--raw]\nCommands: state, resolve-model, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, list-todos, verify-path-exists, config-ensure-section, init');
+    error('Usage: grd-tools <command> [args] [--raw]\nCommands: state, find-phase, commit, verify-summary, verify, frontmatter, template, generate-slug, current-timestamp, verify-path-exists, config-ensure-section, init');
   }
 
   switch (command) {
@@ -4258,36 +3921,9 @@ async function main() {
         }, raw);
       } else if (subcommand === 'update-progress') {
         cmdStateUpdateProgress(cwd, raw);
-      } else if (subcommand === 'add-decision') {
-        const phaseIdx = args.indexOf('--phase');
-        const summaryIdx = args.indexOf('--summary');
-        const rationaleIdx = args.indexOf('--rationale');
-        cmdStateAddDecision(cwd, {
-          phase: phaseIdx !== -1 ? args[phaseIdx + 1] : null,
-          summary: summaryIdx !== -1 ? args[summaryIdx + 1] : null,
-          rationale: rationaleIdx !== -1 ? args[rationaleIdx + 1] : '',
-        }, raw);
-      } else if (subcommand === 'add-blocker') {
-        const textIdx = args.indexOf('--text');
-        cmdStateAddBlocker(cwd, textIdx !== -1 ? args[textIdx + 1] : null, raw);
-      } else if (subcommand === 'resolve-blocker') {
-        const textIdx = args.indexOf('--text');
-        cmdStateResolveBlocker(cwd, textIdx !== -1 ? args[textIdx + 1] : null, raw);
-      } else if (subcommand === 'record-session') {
-        const stoppedIdx = args.indexOf('--stopped-at');
-        const resumeIdx = args.indexOf('--resume-file');
-        cmdStateRecordSession(cwd, {
-          stopped_at: stoppedIdx !== -1 ? args[stoppedIdx + 1] : null,
-          resume_file: resumeIdx !== -1 ? args[resumeIdx + 1] : 'None',
-        }, raw);
       } else {
         cmdStateLoad(cwd, raw);
       }
-      break;
-    }
-
-    case 'resolve-model': {
-      cmdResolveModel(cwd, args[1], raw);
       break;
     }
 
@@ -4392,11 +4028,6 @@ async function main() {
       break;
     }
 
-    case 'list-todos': {
-      cmdListTodos(cwd, args[1], raw);
-      break;
-    }
-
     case 'verify-path-exists': {
       cmdVerifyPathExists(cwd, args[1], raw);
       break;
@@ -4492,16 +4123,6 @@ async function main() {
       break;
     }
 
-    case 'todo': {
-      const subcommand = args[1];
-      if (subcommand === 'complete') {
-        cmdTodoComplete(cwd, args[2], raw);
-      } else {
-        error('Unknown todo subcommand. Available: complete');
-      }
-      break;
-    }
-
     case 'scaffold': {
       const scaffoldType = args[1];
       const phaseIndex = args.indexOf('--phase');
@@ -4542,9 +4163,6 @@ async function main() {
         case 'phase-op':
           cmdInitPhaseOp(cwd, args[2], raw);
           break;
-        case 'todos':
-          cmdInitTodos(cwd, args[2], raw);
-          break;
         case 'milestone-op':
           cmdInitMilestoneOp(cwd, raw);
           break;
@@ -4555,7 +4173,7 @@ async function main() {
           cmdInitProgress(cwd, includes, raw);
           break;
         default:
-          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, todos, milestone-op, map-codebase, progress`);
+          error(`Unknown init workflow: ${workflow}\nAvailable: execute-phase, plan-phase, new-project, new-milestone, quick, resume, verify-work, phase-op, milestone-op, map-codebase, progress`);
       }
       break;
     }

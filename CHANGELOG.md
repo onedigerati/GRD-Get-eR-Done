@@ -6,6 +6,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.20.0] - 2026-02-21
+
+### Added
+- **Deferred work tracking** — Executor agent captures deferred decisions, out-of-scope improvements, and cross-phase dependencies via native `TodoWrite`. Pause, resume, progress, and transition workflows surface them via `TodoRead`
+- **Carry-forward step in transitions** — Phase transitions now check for deferred items that should carry forward to the next phase
+- Native `model:` frontmatter field added to all 11 agent files for direct model configuration (Claude Code reads this natively)
+- "What's New" modernization section on landing page and README
+
+### Changed
+- **Pause/resume workflows simplified** — Reduced from ~430 combined lines to ~120. Auto-memory preserves full session context; `.continue-here.md` handoff system removed
+- **STATE.md slimmed** — Template reduced from ~100 to ~40 lines. Removed Accumulated Context sections (Decisions, Blockers, Pending Todos) — all now handled by auto-memory and native todos
+- **Settings workflow** — Removed model profile question; now configures workflow toggles and git branching only
+- **Help workflow** — Updated to reflect removed commands, added Deferred Work Tracking section
+- README and landing page updated with modernization docs, corrected command counts (27 → 24), and updated architecture descriptions
+- Executor agent: Added `TodoRead`/`TodoWrite` to tools, deferred work handling in deviation rules and summary creation, removed decision/session state command usage
+
+### Removed
+- **`/grd:set-profile`** command, workflow, and reference doc — use native `model:` frontmatter in agent files instead
+- **`/grd:add-todo`** and **`/grd:check-todos`** commands and workflows — replaced by native `TodoRead`/`TodoWrite` integration across GRD workflows
+- **`.continue-here.md`** template — auto-memory handles session continuity
+- `resolve-model` command and `MODEL_PROFILES` table from `grd-tools.js`
+- `list-todos`, `todo complete`, and `init todos` commands from `grd-tools.js`
+- `state add-decision`, `state add-blocker`, `state resolve-blocker`, `state record-session` commands from `grd-tools.js`
+- `model_profile` config field from all init compound commands and config defaults
+
 ## [1.19.2] - 2026-02-16
 
 ### Added
@@ -1244,7 +1269,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - YOLO mode for autonomous execution
 - Interactive mode with checkpoints
 
-[Unreleased]: https://github.com/onedigerati/GRD-Get-eR-Done/compare/v1.19.2...HEAD
+[Unreleased]: https://github.com/onedigerati/GRD-Get-eR-Done/compare/v1.20.0...HEAD
+[1.20.0]: https://github.com/onedigerati/GRD-Get-eR-Done/releases/tag/v1.20.0
 [1.19.2]: https://github.com/onedigerati/GRD-Get-eR-Done/releases/tag/v1.19.2
 [1.19.1]: https://github.com/onedigerati/GRD-Get-eR-Done/releases/tag/v1.19.1
 [1.19.0]: https://github.com/onedigerati/GRD-Get-eR-Done/releases/tag/v1.19.0

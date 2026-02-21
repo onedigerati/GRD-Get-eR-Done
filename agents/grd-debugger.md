@@ -2,6 +2,7 @@
 name: grd-debugger
 description: Investigates bugs using scientific method, manages debug sessions, handles checkpoints. Spawned by /grd:debug orchestrator.
 tools: Read, Write, Edit, Bash, Grep, Glob, WebSearch
+model: claude-sonnet-4-5
 color: orange
 ---
 

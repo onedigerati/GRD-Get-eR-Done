@@ -1,6 +1,6 @@
 ---
 name: grd:settings
-description: Configure GRD workflow toggles and model profile
+description: Configure GRD workflow toggles
 allowed-tools:
   - Read
   - Write
@@ -9,12 +9,12 @@ allowed-tools:
 ---
 
 <objective>
-Interactive configuration of GRD workflow agents and model profile via multi-question prompt.
+Interactive configuration of GRD workflow agents via multi-question prompt.
 
 Routes to the settings workflow which handles:
 - Config existence ensuring
 - Current settings reading and parsing
-- Interactive 5-question prompt (model, research, plan_check, verifier, branching)
+- Interactive 4-question prompt (research, plan_check, verifier, branching)
 - Config merging and writing
 - Confirmation display with quick command references
 </objective>

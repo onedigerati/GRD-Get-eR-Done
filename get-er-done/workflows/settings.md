@@ -1,5 +1,5 @@
 <purpose>
-Interactive configuration of GRD workflow agents (research, plan_check, verifier) and model profile selection via multi-question prompt. Updates .planning/config.json with user preferences.
+Interactive configuration of GRD workflow agents (research, plan_check, verifier) via multi-question prompt. Updates .planning/config.json with user preferences.
 </purpose>
 
 <required_reading>
@@ -28,8 +28,7 @@ Parse current values (default to `true` if not present):
 - `workflow.research` â€” spawn researcher during plan-phase
 - `workflow.plan_check` â€” spawn plan checker during plan-phase
 - `workflow.verifier` â€” spawn verifier during execute-phase
-- `model_profile` â€” which model each agent uses (default: `balanced`)
-- `git.branching_strategy` â€” branching approach (default: `"none"`)
+- `git.branching_strategy` â€" branching approach (default: `"none"`)
 </step>
 
 <step name="present_settings">
@@ -37,16 +36,6 @@ Use AskUserQuestion with current values pre-selected:
 
 ```
 AskUserQuestion([
-  {
-    question: "Which model profile for agents?",
-    header: "Model",
-    multiSelect: false,
-    options: [
-      { label: "Quality", description: "Opus everywhere except verification (highest cost)" },
-      { label: "Balanced (Recommended)", description: "Opus for planning, Sonnet for execution/verification" },
-      { label: "Budget", description: "Sonnet for writing, Haiku for research/verification (lowest cost)" }
-    ]
-  },
   {
     question: "Spawn Plan Researcher? (researches domain before planning)",
     header: "Research",
@@ -94,7 +83,6 @@ Merge new settings into existing config.json:
 ```json
 {
   ...existing_config,
-  "model_profile": "quality" | "balanced" | "budget",
   "workflow": {
     "research": true/false,
     "plan_check": true/false,
@@ -119,7 +107,6 @@ Display:
 
 | Setting              | Value |
 |----------------------|-------|
-| Model Profile        | {quality/balanced/budget} |
 | Plan Researcher      | {On/Off} |
 | Plan Checker         | {On/Off} |
 | Execution Verifier   | {On/Off} |
@@ -128,8 +115,7 @@ Display:
 These settings apply to future /grd:plan-phase and /grd:execute-phase runs.
 
 Quick commands:
-- /grd:set-profile <profile> â€” switch model profile
-- /grd:plan-phase --research â€” force research
+- /grd:plan-phase --research â€" force research
 - /grd:plan-phase --skip-research â€” skip research
 - /grd:plan-phase --skip-verify â€” skip plan check
 ```
@@ -139,7 +125,7 @@ Quick commands:
 
 <success_criteria>
 - [ ] Current config read
-- [ ] User presented with 5 settings (profile + 3 workflow toggles + git branching)
-- [ ] Config updated with model_profile, workflow, and git sections
+- [ ] User presented with 4 settings (3 workflow toggles + git branching)
+- [ ] Config updated with workflow and git sections
 - [ ] Changes confirmed to user
 </success_criteria>

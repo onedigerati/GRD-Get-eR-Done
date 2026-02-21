@@ -114,7 +114,24 @@ Check for lingering handoffs:
 ls .planning/phases/XX-current/.continue-here*.md 2>/dev/null
 ```
 
-If found, delete them â€” phase is complete, handoffs are stale.
+If found, delete them â€" phase is complete, handoffs are stale.
+
+</step>
+
+<step name="check_carry_forward">
+
+Check for deferred items that should carry forward across phase boundary:
+
+Use TodoRead to list pending items. For each item:
+- If it relates to the completing phase and was addressed: remove it (the work is done)
+- If it relates to future phases: leave as-is (it will surface in the next phase's progress/resume)
+
+If carry-forward items exist, mention them in the transition output:
+
+```
+## Carry-Forward Items
+- [N] deferred items from Phase [X] will carry into Phase [X+1]
+```
 
 </step>
 
@@ -269,50 +286,6 @@ Update the date and current focus to reflect the transition.
 
 </step>
 
-<step name="review_accumulated_context">
-
-Review and update Accumulated Context section in STATE.md.
-
-**Decisions:**
-
-- Note recent decisions from this phase (3-5 max)
-- Full log lives in PROJECT.md Key Decisions table
-
-**Blockers/Concerns:**
-
-- Review blockers from completed phase
-- If addressed in this phase: Remove from list
-- If still relevant for future: Keep with "Phase X" prefix
-- Add any new concerns from completed phase's summaries
-
-**Example:**
-
-Before:
-
-```markdown
-### Blockers/Concerns
-
-- âš ï¸ [Phase 1] Database schema not indexed for common queries
-- âš ï¸ [Phase 2] WebSocket reconnection behavior on flaky networks unknown
-```
-
-After (if database indexing was addressed in Phase 2):
-
-```markdown
-### Blockers/Concerns
-
-- âš ï¸ [Phase 2] WebSocket reconnection behavior on flaky networks unknown
-```
-
-**Step complete when:**
-
-- [ ] Recent decisions noted (full log in PROJECT.md)
-- [ ] Resolved blockers removed from list
-- [ ] Unresolved blockers kept with phase prefix
-- [ ] New concerns from completed phase added
-
-</step>
-
 <step name="update_session_continuity_after_transition">
 
 Update Session Continuity section in STATE.md to reflect transition completion.
@@ -320,16 +293,12 @@ Update Session Continuity section in STATE.md to reflect transition completion.
 **Format:**
 
 ```markdown
-Last session: [today]
-Stopped at: Phase [X] complete, ready to plan Phase [X+1]
-Resume file: None
+Last activity: [YYYY-MM-DD] — Phase [X] complete, ready to plan Phase [X+1]
 ```
 
 **Step complete when:**
 
-- [ ] Last session timestamp updated to current date and time
-- [ ] Stopped at describes phase completion and next phase
-- [ ] Resume file confirmed as None (transitions don't use resume files)
+- [ ] Last activity updated with today's date and phase transition description
 
 </step>
 

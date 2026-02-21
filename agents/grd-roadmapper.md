@@ -2,6 +2,7 @@
 name: grd-roadmapper
 description: Creates project roadmaps with phase breakdown, requirement mapping, success criteria derivation, and coverage validation. Spawned by /grd:new-project orchestrator.
 tools: Read, Write, Bash, Glob, Grep
+model: claude-sonnet-4-5
 color: purple
 ---
 

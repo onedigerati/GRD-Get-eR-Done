@@ -330,6 +330,8 @@ One-liner SUBSTANTIVE: "JWT auth with refresh rotation using jose library" not "
 Include: duration, start/end times, task count, file count.
 
 Next: more plans â†’ "Ready for {next-plan}" | last â†’ "Phase complete, ready for transition".
+
+**Cross-phase items:** If TodoWrite was called during execution (by grd-executor), mention carry-forward items in the summary's next-steps section. These surface automatically in progress and transition workflows.
 </step>
 
 <step name="update_current_position">
@@ -347,31 +349,6 @@ node ~/.claude/get-er-done/bin/grd-tools.js state record-metric \
   --phase "${PHASE}" --plan "${PLAN}" --duration "${DURATION}" \
   --tasks "${TASK_COUNT}" --files "${FILE_COUNT}"
 ```
-</step>
-
-<step name="extract_decisions_and_issues">
-From SUMMARY: Extract decisions and add to STATE.md:
-
-```bash
-# Add each decision from SUMMARY key-decisions
-node ~/.claude/get-er-done/bin/grd-tools.js state add-decision \
-  --phase "${PHASE}" --summary "${DECISION_TEXT}" --rationale "${RATIONALE}"
-
-# Add blockers if any found
-node ~/.claude/get-er-done/bin/grd-tools.js state add-blocker "Blocker description"
-```
-</step>
-
-<step name="update_session_continuity">
-Update session info using grd-tools:
-
-```bash
-node ~/.claude/get-er-done/bin/grd-tools.js state record-session \
-  --stopped-at "Completed ${PHASE}-${PLAN}-PLAN.md" \
-  --resume-file "None"
-```
-
-Keep STATE.md under 150 lines.
 </step>
 
 <step name="issues_review_gate">
@@ -408,6 +385,17 @@ node ~/.claude/get-er-done/bin/grd-tools.js commit "" --files .planning/codebase
 <step name="offer_next">
 If `USER_SETUP_CREATED=true`: display `âš ï¸ USER SETUP REQUIRED` with path + env/config tasks at TOP.
 
+**Surface pending items:**
+
+Use TodoRead to check for deferred items. If items exist, display them after the next-step suggestion:
+
+```
+## Deferred Items
+- [priority] [description] (from Phase X, Plan Y)
+```
+
+This ensures deferred work from execution is visible before the user moves on.
+
 ```bash
 ls -1 .planning/phases/[current-phase-dir]/*-PLAN.md 2>/dev/null | wc -l
 ls -1 .planning/phases/[current-phase-dir]/*-SUMMARY.md 2>/dev/null | wc -l
@@ -430,7 +418,7 @@ All routes: `/clear` first for fresh context.
 - All verifications pass
 - USER-SETUP.md generated if user_setup in frontmatter
 - SUMMARY.md created with substantive content
-- STATE.md updated (position, decisions, issues, session)
+- STATE.md updated (position, progress, metrics)
 - ROADMAP.md updated
 - If codebase map exists: map updated with execution changes (or skipped if no significant changes)
 - If USER-SETUP.md created: prominently surfaced in completion output

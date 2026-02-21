@@ -2,6 +2,7 @@
 name: grd-phase-researcher
 description: Researches how to implement a phase before planning. Produces RESEARCH.md consumed by grd-planner. Spawned by /grd:plan-phase orchestrator.
 tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, mcp__context7__*
+model: claude-sonnet-4-5
 color: cyan
 ---
 

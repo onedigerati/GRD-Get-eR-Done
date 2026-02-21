@@ -60,12 +60,27 @@ GRD takes that foundation and adds **persistent Agent Teams** — named agents t
 | Dependencies | Hardcoded wave ordering | Declarative `blockedBy` / `blocks` — agents auto-wait |
 | Observability | Final output only | Named agents + live task board |
 | Failure recovery | Re-spawn from scratch | Re-message idle agents with new instructions |
-| State management | Regex-based markdown parsing | Deterministic `grd-tools.js` commands with test coverage |
+| State management | Regex-based markdown parsing | Streamlined `grd-tools.js` commands — deterministic with test coverage, trimmed to remove overlap with Claude Code's auto-memory |
 | Plan verification | 6 dimensions | 7 dimensions (adds Context Compliance for user decisions) |
 | Executor safety | No self-check | Self-check verifies files exist and commits match claims |
 | Branding | Not suitable for all workplaces | Professional and workplace-friendly |
 
 > **Credit:** The core workflow, context engineering approach, XML prompt formatting, and multi-agent architecture are all from GSD by TÂCHES. GRD builds on that work with Agent Teams integration, quality gates, and deterministic tooling. GSD is an outstanding system — GRD makes it better.
+
+### What's New in This Version
+
+GRD now leverages Claude Code's native capabilities instead of reimplementing them. The result: less token overhead, less maintenance, simpler workflows — same power.
+
+| Change | What happened | Why it's better |
+|--------|---------------|-----------------|
+| **Model configuration** | Removed `/grd:set-profile` and the profile system. Each agent's `.md` file uses the native `model:` frontmatter field directly. | One less command. Claude Code reads `model:` natively — no translation layer needed. |
+| **Todo management** | Removed `/grd:add-todo` and `/grd:check-todos`. GRD workflows now use native `TodoRead`/`TodoWrite` to track deferred work automatically. | Claude Code's built-in tools replace custom commands. The executor captures deferred items; pause, resume, progress, and transition workflows surface them. |
+| **State commands pruned** | Removed `state add-decision`, `state add-blocker`, `state resolve-blocker`, `state record-session` from `grd-tools.js`. | Claude Code's auto-memory tracks decisions, blockers, and session context natively. The remaining state commands (`advance-plan`, `update-progress`, `record-metric`) handle what auto-memory doesn't. |
+| **Pause/resume simplified** | `/grd:pause-work` saves position to STATE.md and surfaces pending deferred items. `/grd:resume-work` reads position and displays pending items alongside status. Removed the `.continue-here.md` handoff template. | Auto-memory preserves full context across sessions. Deferred items surface automatically via native `TodoRead`. |
+| **STATE.md slimmed** | Template reduced from ~100 to ~40 lines. Removed Accumulated Context (Decisions, Blockers) and Pending Todos sections. | Those sections duplicated what auto-memory already tracks. STATE.md now focuses on project position and performance metrics. |
+| **Deferred work tracking** | GRD workflows now use native `TodoRead`/`TodoWrite` to track deferred decisions, discovered improvements, and cross-phase items. Surfaces automatically in pause, resume, progress, and transition workflows. | Zero-config tracking that survives context window boundaries. The executor captures deferred items; other workflows surface them at the right moments. |
+
+**Migrating from a previous version?** No action needed for most changes — auto-memory and native todos activate automatically. For model configuration, edit the `model:` field in agent files under `agents/` instead of using the removed `/grd:set-profile` command.
 
 ---
 
@@ -357,10 +372,9 @@ GRD handles it for you:
 | `research/` | Ecosystem knowledge (stack, features, architecture, pitfalls) |
 | `REQUIREMENTS.md` | Scoped v1/v2 requirements with phase traceability |
 | `ROADMAP.md` | Where you're going, what's done |
-| `STATE.md` | Decisions, blockers, position — memory across sessions |
+| `STATE.md` | ~40-line file tracking current position, performance metrics, and session timestamp |
 | `PLAN.md` | Atomic task with XML structure, verification steps |
 | `SUMMARY.md` | What happened, what changed, committed to history |
-| `todos/` | Captured ideas and tasks for later work |
 
 Size limits based on where Claude's quality degrades. Stay under, get consistent excellence.
 
@@ -447,7 +461,7 @@ Key benefits:
 GRD introduces quality gates at every stage that reduce cascading errors across multi-phase projects:
 
 - **Context Compliance** — Plan-checker has a 7th verification dimension that checks plans honor user decisions from `CONTEXT.md` before execution begins
-- **Deterministic state** — Agents use `grd-tools.js state` commands instead of regex-based markdown parsing, with test coverage and atomic writes
+- **Deterministic state** — Agents use `grd-tools.js state` commands (`advance-plan`, `update-progress`, `record-metric`) for atomic, test-covered writes — complementing Claude Code's auto-memory for decisions/blockers and native `TodoRead`/`TodoWrite` for deferred work tracking
 - **Executor self-check** — After writing SUMMARY.md, the executor verifies each claimed file exists on disk and each commit hash exists in git log before proceeding
 - **Condensed prompts** — Agent instructions are ~48% smaller, leaving more of the context window for actual work
 - **Structured history** — `grd-tools.js history-digest` compiles summaries into scored JSON for better-informed planning
@@ -458,13 +472,13 @@ GRD introduces quality gates at every stage that reduce cascading errors across 
 GRD is organized in four layers, each with a clear responsibility:
 
 ```
-Commands (27)     /grd:new-project, /grd:plan-phase, /grd:execute-phase, ...
+Commands (21)     /grd:new-project, /grd:plan-phase, /grd:execute-phase, ...
     ↓
 Workflows (30+)   new-project.md, plan-phase.md, execute-phase.md, ...
     ↓
 Agents (11)       grd-planner, grd-executor, grd-verifier, grd-debugger, ...
     ↓
-Tools (20+)       grd-tools.js — state, commit, resolve-model, validate, ...
+Tools (20+)       grd-tools.js — state, commit, validate, history-digest, ...
 ```
 
 Commands are thin entry points. Workflows orchestrate. Agents do the heavy lifting in fresh context windows. Tools handle atomic operations deterministically.
@@ -534,17 +548,14 @@ You're never locked in. The system adapts.
 
 | Command | What it does |
 |---------|--------------|
-| `/grd:pause-work` | Create handoff when stopping mid-phase |
-| `/grd:resume-work` | Restore from last session |
+| `/grd:pause-work` | Save position when stopping mid-phase |
+| `/grd:resume-work` | Show project position and suggest next steps |
 
 ### Utilities
 
 | Command | What it does |
 |---------|--------------|
-| `/grd:settings` | Configure model profile and workflow agents |
-| `/grd:set-profile <profile>` | Switch model profile (quality/balanced/budget) |
-| `/grd:add-todo [desc]` | Capture idea for later |
-| `/grd:check-todos` | List pending todos |
+| `/grd:settings` | Configure workflow agents and execution settings |
 | `/grd:debug [desc]` | Systematic debugging with persistent state |
 | `/grd:quick` | Execute ad-hoc task with GRD guarantees |
 | `/grd:research-phase [N]` | Standalone phase research (usually use plan-phase instead) |
@@ -565,22 +576,17 @@ GRD stores project settings in `.planning/config.json`. Configure during `/grd:n
 | `mode` | `yolo`, `interactive` | `interactive` | Auto-approve vs confirm at each step |
 | `depth` | `quick`, `standard`, `comprehensive` | `standard` | Planning thoroughness (phases × plans) |
 
-### Model Profiles
+### Model Assignment
 
-Control which Claude model each agent uses. Balance quality vs token spend.
+Each agent specifies its Claude model via the native `model:` frontmatter field in its agent `.md` file under `agents/`. The defaults balance quality against token spend:
 
-| Profile | Planning | Execution | Verification |
-|---------|----------|-----------|--------------|
-| `quality` | Opus | Opus | Sonnet |
-| `balanced` (default) | Opus | Sonnet | Sonnet |
-| `budget` | Sonnet | Sonnet | Haiku |
+| Role | Model | Agent files |
+|------|-------|-------------|
+| Planning | `claude-opus-4-5` | `grd-planner.md` |
+| Execution & verification | `claude-sonnet-4-5` | `grd-executor.md`, `grd-verifier.md`, and most others |
+| Codebase mapping | `claude-haiku-4-5` | `grd-codebase-mapper.md` |
 
-Switch profiles:
-```
-/grd:set-profile budget
-```
-
-Or configure via `/grd:settings`.
+To change an agent's model, edit the `model:` field directly in its file. No command needed — Claude Code reads the frontmatter natively.
 
 ### Workflow Agents
 

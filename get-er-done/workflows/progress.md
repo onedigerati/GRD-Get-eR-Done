@@ -42,7 +42,7 @@ If missing both ROADMAP.md and PROJECT.md: suggest `/grd:new-project`.
 **Use project context from INIT:**
 
 All file contents are already loaded via `--include` in init_context step:
-- `state_content` â€” living memory (position, decisions, issues)
+- `state_content` â€" living memory (position, metrics)
 - `roadmap_content` â€” phase structure and objectives
 - `project_content` â€” current state (What This Is, Core Value, Requirements)
 - `config_content` â€” settings (model_profile, workflow toggles)
@@ -84,8 +84,8 @@ Use this instead of manually reading/parsing ROADMAP.md.
 - Use `current_phase` and `next_phase` from roadmap analyze
 - Use phase-level `has_context` and `has_research` flags from analyze
 - Note `paused_at` if work was paused (from init context)
-- Count pending todos: use `init todos` or `list-todos`
 - Check for active debug sessions: `ls .planning/debug/*.md 2>/dev/null | grep -v resolved | wc -l`
+- Check for pending deferred items: Use TodoRead to get current todo list
   </step>
 
 <step name="report">
@@ -111,21 +111,15 @@ Present:
 ## Current Position
 Phase [N] of [total]: [phase-name]
 Plan [M] of [phase-total]: [status]
-CONTEXT: [âœ“ if has_context | - if not]
-
-## Key Decisions Made
-- [decision 1 from STATE.md]
-- [decision 2]
-
-## Blockers/Concerns
-- [any blockers or concerns from STATE.md]
-
-## Pending Todos
-- [count] pending â€” /grd:check-todos to review
+CONTEXT: [âœ" if has_context | - if not]
 
 ## Active Debug Sessions
 - [count] active â€” /grd:debug to continue
 (Only show this section if count > 0)
+
+## Pending Items
+- [List deferred items from TodoRead with priorities]
+(Only show this section if TodoRead returns items)
 
 ## What's Next
 [Next phase/plan objective from roadmap analyze]

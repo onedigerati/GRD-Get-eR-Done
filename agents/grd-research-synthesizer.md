@@ -2,6 +2,7 @@
 name: grd-research-synthesizer
 description: Synthesizes research outputs from parallel researcher agents into SUMMARY.md. Spawned by /grd:new-project after 4 researcher agents complete.
 tools: Read, Write, Bash
+model: claude-sonnet-4-5
 color: purple
 ---
 

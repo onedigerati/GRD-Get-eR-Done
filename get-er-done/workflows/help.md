@@ -202,22 +202,35 @@ Usage: `/grd:progress`
 ### Session Management
 
 **`/grd:resume-work`**
-Resume work from previous session with full context restoration.
+Resume work from previous session.
 
-- Reads STATE.md for project context
-- Shows current position and recent progress
-- Offers next actions based on project state
+- Shows current position from STATE.md
+- Surfaces pending deferred items via TodoRead
+- Suggests next action based on project state
+- Auto-memory restores detailed session context
 
 Usage: `/grd:resume-work`
 
 **`/grd:pause-work`**
-Create context handoff when pausing work mid-phase.
+Save current position when pausing work.
 
-- Creates .continue-here file with current state
-- Updates STATE.md session continuity section
-- Captures in-progress work context
+- Updates STATE.md session timestamp
+- Surfaces pending items count for awareness
+- Auto-memory preserves full session context including key decisions
 
 Usage: `/grd:pause-work`
+
+### Deferred Work Tracking
+
+GRD uses Claude Code's native `TodoRead`/`TodoWrite` tools to track deferred decisions, discovered work, and cross-phase items:
+
+- **During execution:** The executor captures deferred architectural decisions and out-of-scope improvements as todos
+- **On pause:** Pending items are surfaced before saving state
+- **On resume:** Pending items are displayed alongside project status
+- **At transitions:** Carry-forward items are checked at phase boundaries
+- **In progress:** Pending items appear in the progress report
+
+No commands needed — tracking happens automatically within existing GRD workflows.
 
 ### Debugging
 
@@ -232,32 +245,6 @@ Systematic debugging with persistent state across context resets.
 
 Usage: `/grd:debug "login button doesn't work"`
 Usage: `/grd:debug` (resume active session)
-
-### Todo Management
-
-**`/grd:add-todo [description]`**
-Capture idea or task as todo from current conversation.
-
-- Extracts context from conversation (or uses provided description)
-- Creates structured todo file in `.planning/todos/pending/`
-- Infers area from file paths for grouping
-- Checks for duplicates before creating
-- Updates STATE.md todo count
-
-Usage: `/grd:add-todo` (infers from conversation)
-Usage: `/grd:add-todo Add auth token refresh`
-
-**`/grd:check-todos [area]`**
-List pending todos and select one to work on.
-
-- Lists all pending todos with title, area, age
-- Optional area filter (e.g., `/grd:check-todos api`)
-- Loads full context for selected todo
-- Routes to appropriate action (work now, add to phase, brainstorm)
-- Moves todo to done/ when work begins
-
-Usage: `/grd:check-todos`
-Usage: `/grd:check-todos api`
 
 ### User Acceptance Testing
 
@@ -296,22 +283,13 @@ Usage: `/grd:plan-milestone-gaps`
 ### Configuration
 
 **`/grd:settings`**
-Configure workflow toggles and model profile interactively.
+Configure workflow toggles interactively.
 
 - Toggle researcher, plan checker, verifier agents
-- Select model profile (quality/balanced/budget)
+- Select git branching strategy
 - Updates `.planning/config.json`
 
 Usage: `/grd:settings`
-
-**`/grd:set-profile <profile>`**
-Quick switch model profile for GRD agents.
-
-- `quality` â€” Opus everywhere except verification
-- `balanced` â€” Opus for planning, Sonnet for execution (default)
-- `budget` â€” Sonnet for writing, Haiku for research/verification
-
-Usage: `/grd:set-profile budget`
 
 ### Utility Commands
 
@@ -345,9 +323,6 @@ Usage: `/grd:join-discord`
 â”œâ”€â”€ ROADMAP.md            # Current phase breakdown
 â”œâ”€â”€ STATE.md              # Project memory & context
 â”œâ”€â”€ config.json           # Workflow mode & gates
-â”œâ”€â”€ todos/                # Captured ideas and tasks
-â”‚   â”œâ”€â”€ pending/          # Todos waiting to be worked on
-â”‚   â””â”€â”€ done/             # Completed todos
 â”œâ”€â”€ debug/                # Active debug sessions
 â”‚   â””â”€â”€ resolved/         # Archived resolved issues
 â”œâ”€â”€ codebase/             # Codebase map (brownfield projects)
@@ -444,15 +419,6 @@ Example config:
 /grd:complete-milestone 1.0.0
 /clear
 /grd:new-milestone  # Start next milestone (questioning â†’ research â†’ requirements â†’ roadmap)
-```
-
-**Capturing ideas during work:**
-
-```
-/grd:add-todo                    # Capture from conversation context
-/grd:add-todo Fix modal z-index  # Capture with explicit description
-/grd:check-todos                 # Review and work on todos
-/grd:check-todos api             # Filter by area
 ```
 
 **Debugging an issue:**
